@@ -113,7 +113,8 @@ func TestDouyinSearchFallsBackToV3(t *testing.T) {
 		requests = append(requests, r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		switch {
-		case strings.HasSuffix(r.URL.Path, "/fetch_video_search_v5"),
+		case strings.HasSuffix(r.URL.Path, "/fetch_video_search_v2"),
+			strings.HasSuffix(r.URL.Path, "/fetch_video_search_v5"),
 			strings.HasSuffix(r.URL.Path, "/fetch_video_search_v4"):
 			w.WriteHeader(http.StatusBadRequest)
 			_ = json.NewEncoder(w).Encode(map[string]interface{}{
@@ -152,8 +153,77 @@ func TestDouyinSearchFallsBackToV3(t *testing.T) {
 	if len(result.Items) != 1 || result.Items[0].ExternalID != "1" {
 		t.Fatalf("result = %#v", result)
 	}
-	if len(requests) != 3 {
+	if len(requests) != 4 {
 		t.Fatalf("requests = %#v", requests)
+	}
+}
+
+func TestDouyinSearchUsesV2Pagination(t *testing.T) {
+	requestBodies := []map[string]interface{}{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "/fetch_video_search_v2") {
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+		var body map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		requestBodies = append(requestBodies, body)
+		page := len(requestBodies)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code": 200,
+			"data": map[string]interface{}{
+				"business_data": []interface{}{
+					map[string]interface{}{
+						"data": map[string]interface{}{
+							"aweme_info": map[string]interface{}{
+								"aweme_id":    "video-" + string(rune('0'+page)),
+								"desc":        "冲锋衣实测",
+								"create_time": float64(1795428000),
+								"author":      map[string]interface{}{"nickname": "作者"},
+								"video": map[string]interface{}{
+									"cover":     map[string]interface{}{"url_list": []interface{}{"https://cdn.example.com/cover.jpg"}},
+									"play_addr": map[string]interface{}{"url_list": []interface{}{"https://cdn.example.com/video.mp4"}},
+								},
+								"statistics": map[string]interface{}{"digg_count": float64(100)},
+							},
+						},
+					},
+				},
+				"business_config": map[string]interface{}{
+					"has_more":  1,
+					"backtrace": "next-backtrace",
+					"next_page": map[string]interface{}{
+						"cursor": 8, "search_id": "next-search",
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client, err := New(Config{BaseURL: server.URL, APIKey: "test-key"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := client.Search(context.Background(), "douyin", "冲锋衣", 2, 20, "video", 0)
+	if err != nil {
+		t.Fatalf("Search: %v", err)
+	}
+	if result.PagesFetched != 2 || len(result.Items) != 2 {
+		t.Fatalf("result = %#v", result)
+	}
+	if len(requestBodies) != 2 {
+		t.Fatalf("request count = %d", len(requestBodies))
+	}
+	if requestBodies[0]["content_type"] != "1" || requestBodies[0]["cursor"] != float64(0) {
+		t.Fatalf("first body = %#v", requestBodies[0])
+	}
+	if requestBodies[1]["cursor"] != float64(8) ||
+		requestBodies[1]["search_id"] != "next-search" ||
+		requestBodies[1]["backtrace"] != "next-backtrace" {
+		t.Fatalf("second body = %#v", requestBodies[1])
 	}
 }
 
@@ -207,10 +277,60 @@ func TestXiaohongshuSearchUsesPlatformNoteTypes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
-	if query.Get("note_type") != "普通笔记" || query.Get("time_filter") != "不限" {
+	if query.Get("note_type") != "普通笔记" || query.Get("time_filter") != "不限" ||
+		query.Get("source") != "explore_feed" || query.Get("ai_mode") != "0" {
 		t.Fatalf("query = %#v", query)
 	}
 	if len(result.Items) != 1 || result.Items[0].ExternalID != "note-1" {
+		t.Fatalf("result = %#v", result)
+	}
+}
+
+func TestTikTokImageSearchUsesPhotoEndpoint(t *testing.T) {
+	var requestPath string
+	var query url.Values
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestPath = r.URL.Path
+		query = r.URL.Query()
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code": 200,
+			"data": map[string]interface{}{
+				"status_code": 0,
+				"itemList": []interface{}{
+					map[string]interface{}{
+						"id":     "photo-1",
+						"desc":   "冲锋衣穿搭图集",
+						"author": map[string]interface{}{"uniqueId": "creator", "nickname": "作者"},
+						"imagePost": map[string]interface{}{
+							"images": []interface{}{
+								map[string]interface{}{"imageURL": map[string]interface{}{"urlList": []interface{}{"https://cdn.example.com/photo.jpg"}}},
+							},
+						},
+						"stats": map[string]interface{}{"diggCount": float64(120)},
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client, err := New(Config{BaseURL: server.URL, APIKey: "test-key"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := client.Search(context.Background(), "tiktok", "冲锋衣", 1, 20, "image", 0)
+	if err != nil {
+		t.Fatalf("Search: %v", err)
+	}
+	if requestPath != "/api/v1/tiktok/web/fetch_search_photo" {
+		t.Fatalf("path = %s", requestPath)
+	}
+	if query.Get("keyword") != "冲锋衣" {
+		t.Fatalf("query = %#v", query)
+	}
+	if len(result.Items) != 1 || result.Items[0].ContentType != "image" ||
+		result.Items[0].CoverURL != "https://cdn.example.com/photo.jpg" {
 		t.Fatalf("result = %#v", result)
 	}
 }

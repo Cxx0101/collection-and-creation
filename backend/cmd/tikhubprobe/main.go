@@ -69,6 +69,7 @@ func decryptSecret(stored string) string {
 
 func main() {
 	clientOnly := flag.Bool("client-only", false, "skip raw endpoint probes and only run the client search")
+	rawOnly := flag.Bool("raw-only", false, "run raw endpoint probes without the client search")
 	rawName := flag.String("raw-name", "", "run only one raw endpoint probe with this name")
 	platform := flag.String("platform", "douyin", "collection platform: douyin, xiaohongshu or tiktok")
 	keyword := flag.String("keyword", "冲锋衣", "search keyword")
@@ -101,6 +102,14 @@ func main() {
 		Body   interface{}
 	}
 	tests := []test{
+		{
+			Name: "douyin_v2", Method: http.MethodPost,
+			Path: "/api/v1/douyin/search/fetch_video_search_v2",
+			Body: map[string]interface{}{
+				"keyword": "冲锋衣", "cursor": 0, "sort_type": "0", "publish_time": "0",
+				"filter_duration": "0", "content_type": "1", "search_id": "", "backtrace": "",
+			},
+		},
 		{
 			Name: "douyin_v5_minimal", Method: http.MethodPost,
 			Path: "/api/v1/douyin/search/fetch_video_search_v5",
@@ -211,14 +220,16 @@ func main() {
 		}
 	}
 
-	tikhubClient, err := tikhub.New(tikhub.Config{BaseURL: base, APIKey: key})
-	if err == nil {
-		result, searchErr := tikhubClient.Search(context.Background(), *platform, *keyword, *pages, *limit, *contentType, *days)
-		firstID := ""
-		if len(result.Items) > 0 {
-			firstID = result.Items[0].ExternalID
+	if !*rawOnly {
+		tikhubClient, err := tikhub.New(tikhub.Config{BaseURL: base, APIKey: key})
+		if err == nil {
+			result, searchErr := tikhubClient.Search(context.Background(), *platform, *keyword, *pages, *limit, *contentType, *days)
+			firstID := ""
+			if len(result.Items) > 0 {
+				firstID = result.Items[0].ExternalID
+			}
+			fmt.Printf("CLIENT_SEARCH error=%v pages=%d items=%d first=%s\n", searchErr, result.PagesFetched, len(result.Items), firstID)
 		}
-		fmt.Printf("CLIENT_SEARCH error=%v pages=%d items=%d first=%s\n", searchErr, result.PagesFetched, len(result.Items), firstID)
 	}
 }
 

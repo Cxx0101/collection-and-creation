@@ -48,10 +48,15 @@ func main() {
 	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
 		log.Fatalf("create upload dir: %v", err)
 	}
+	port := env("PORT", "8080")
+	publicURL := strings.TrimRight(strings.TrimSpace(os.Getenv("PUBLIC_BASE_URL")), "/")
+	if publicURL == "" {
+		publicURL = "http://127.0.0.1:" + port
+	}
 	s := &httpapi.Server{
 		DB:        db,
 		UploadDir: uploadDir,
-		PublicURL: strings.TrimRight(env("PUBLIC_BASE_URL", "http://localhost:8080"), "/"),
+		PublicURL: publicURL,
 	}
 	if err := s.Seed(); err != nil {
 		log.Fatalf("seed: %v", err)
@@ -87,7 +92,7 @@ func main() {
 	r.Static("/uploads", uploadDir)
 	s.RegisterRoutes(r)
 
-	addr := ":" + env("PORT", "8080")
+	addr := ":" + port
 	log.Printf("SparkStudio API listening on %s", addr)
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("server: %v", err)

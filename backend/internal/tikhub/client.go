@@ -197,8 +197,7 @@ func retryableTikhubError(err error) bool {
 	if !errors.As(err, &apiErr) {
 		return false
 	}
-	return apiErr.StatusCode == http.StatusBadRequest ||
-		apiErr.StatusCode == http.StatusRequestTimeout ||
+	return apiErr.StatusCode == http.StatusRequestTimeout ||
 		apiErr.StatusCode == http.StatusTooManyRequests ||
 		apiErr.StatusCode >= 500
 }
@@ -207,11 +206,36 @@ func (c *Client) searchDouyin(
 	ctx context.Context, keyword string, pages, limit int, contentType string, days int,
 ) (SearchResult, error) {
 	if contentType == "image" {
-		return c.searchDouyinImages(ctx, keyword, limit, days)
+		result, err := c.searchDouyinV2(ctx, keyword, pages, limit, contentType, days)
+		if err == nil && len(result.Items) > 0 {
+			return result, nil
+		}
+		imageResult, imageErr := c.searchDouyinImages(ctx, keyword, limit, days)
+		if imageErr == nil && len(imageResult.Items) > 0 {
+			return imageResult, nil
+		}
+		if err != nil && imageErr != nil {
+			return SearchResult{}, fmt.Errorf("抖音图文搜索接口均未返回内容：V2：%v；图文搜索：%v", err, imageErr)
+		}
+		if err != nil {
+			return SearchResult{}, err
+		}
+		if imageErr != nil {
+			return SearchResult{}, imageErr
+		}
+		return SearchResult{}, errors.New("抖音图文搜索未返回可用内容")
 	}
 
 	var failures []string
-	result, err := c.searchDouyinV5(ctx, keyword, pages, limit, days)
+	result, err := c.searchDouyinV2(ctx, keyword, pages, limit, contentType, days)
+	if err == nil && len(result.Items) > 0 {
+		return result, nil
+	}
+	if err != nil {
+		failures = append(failures, "V2："+err.Error())
+	}
+
+	result, err = c.searchDouyinV5(ctx, keyword, pages, limit, days)
 	if err == nil && len(result.Items) > 0 {
 		return result, nil
 	}
@@ -238,6 +262,67 @@ func (c *Client) searchDouyin(
 		return SearchResult{}, errors.New("抖音搜索未返回可用内容")
 	}
 	return SearchResult{}, fmt.Errorf("抖音搜索接口均未返回内容：%s", strings.Join(failures, "；"))
+}
+
+func (c *Client) searchDouyinV2(
+	ctx context.Context, keyword string, pages, limit int, contentType string, days int,
+) (SearchResult, error) {
+	contentTypeValue := map[string]string{"video": "1", "image": "2", "all": "0"}[contentType]
+	if contentTypeValue == "" {
+		contentTypeValue = "1"
+	}
+	wantedType := contentType
+	if wantedType == "all" {
+		wantedType = ""
+	}
+	result := SearchResult{}
+	seen := map[string]Item{}
+	stagnant := 0
+	cursor := 0
+	searchID, backtrace := "", ""
+	for pageRequest := 0; pageRequest < pages && len(seen) < limit; pageRequest++ {
+		payload, err := c.fetch(
+			ctx, http.MethodPost,
+			"/api/v1/douyin/search/fetch_video_search_v2",
+			nil,
+			map[string]interface{}{
+				"keyword": keyword, "cursor": cursor, "sort_type": "0", "publish_time": "0",
+				"filter_duration": "0", "content_type": contentTypeValue,
+				"search_id": searchID, "backtrace": backtrace,
+			},
+		)
+		if err != nil {
+			return result, err
+		}
+		result.PagesFetched++
+		before := len(seen)
+		mergeItems(seen, extractItems(platformDouyin, payload, wantedType), days, limit)
+		if len(seen) == before {
+			stagnant++
+		} else {
+			stagnant = 0
+		}
+		if len(seen) >= limit || stagnant >= 2 {
+			break
+		}
+		config, _ := payload["business_config"].(map[string]interface{})
+		if config == nil {
+			break
+		}
+		if hasMore := boolValue(firstAny(config, "has_more", "hasMore")); hasMore != nil && !*hasMore {
+			break
+		}
+		nextPage, _ := config["next_page"].(map[string]interface{})
+		nextCursor := int(numberValue(firstAny(nextPage, "cursor", "offset")))
+		if nextCursor <= cursor {
+			break
+		}
+		cursor = nextCursor
+		searchID = firstString(nextPage, "search_id")
+		backtrace = firstString(config, "backtrace")
+	}
+	result.Items = itemsFromSeen(seen, limit)
+	return result, nil
 }
 
 func (c *Client) searchDouyinV5(
@@ -497,6 +582,8 @@ func (c *Client) searchPage(
 		query.Set("note_type", noteType)
 		query.Set("sort_type", "general")
 		query.Set("time_filter", timeFilter(days))
+		query.Set("source", "explore_feed")
+		query.Set("ai_mode", "0")
 		if searchID != "" {
 			query.Set("search_id", searchID)
 		}
@@ -506,13 +593,25 @@ func (c *Client) searchPage(
 		requestURL += "?" + query.Encode()
 	case platformTikTok:
 		method = http.MethodGet
-		requestURL = c.baseURL + "/api/v1/tiktok/app/v3/fetch_video_search_result"
+		switch contentType {
+		case "image":
+			requestURL = c.baseURL + "/api/v1/tiktok/web/fetch_search_photo"
+		case "all":
+			requestURL = c.baseURL + "/api/v1/tiktok/app/v3/fetch_general_search_result"
+		default:
+			requestURL = c.baseURL + "/api/v1/tiktok/app/v3/fetch_video_search_result"
+		}
 		query.Set("keyword", keyword)
 		query.Set("count", "20")
 		query.Set("offset", strconv.Itoa(offset))
 		query.Set("sort_type", "0")
 		query.Set("publish_time", strconv.Itoa(tikTokPublishTime(days)))
-		query.Set("region", "US")
+		if searchID != "" {
+			query.Set("search_id", searchID)
+		}
+		if contentType != "image" && contentType != "all" {
+			query.Set("region", "US")
+		}
 		requestURL += "?" + query.Encode()
 	default:
 		return nil, errors.New("不支持的采集平台")
@@ -606,6 +705,12 @@ func extractItems(platform string, data map[string]interface{}, wantedType strin
 			item, ok = normalizeXiaohongshu(value)
 		case platformTikTok:
 			candidate, wrapped := value["aweme_info"].(map[string]interface{})
+			if !wrapped {
+				candidate, wrapped = value["itemStruct"].(map[string]interface{})
+			}
+			if !wrapped {
+				candidate, wrapped = value["item_info"].(map[string]interface{})
+			}
 			if !wrapped {
 				candidate = value
 			}
@@ -770,7 +875,10 @@ func normalizeXiaohongshu(value map[string]interface{}) (Item, bool) {
 func normalizeTikTok(value map[string]interface{}) (Item, bool) {
 	id := firstString(value, "id", "itemId", "aweme_id")
 	video, _ := value["video"].(map[string]interface{})
-	if id == "" || video == nil {
+	imagePost, _ := firstAny(value, "imagePost", "image_post_info", "photoModeImageInfo").(map[string]interface{})
+	images := firstAny(value, "images", "imageList")
+	isImage := imagePost != nil || images != nil
+	if id == "" || (video == nil && !isImage) {
 		return Item{}, false
 	}
 	description := firstString(value, "desc", "description")
@@ -780,9 +888,24 @@ func normalizeTikTok(value map[string]interface{}) (Item, bool) {
 		stats, _ = value["statistics"].(map[string]interface{})
 	}
 	username := strings.TrimPrefix(firstString(author, "uniqueId", "unique_id"), "@")
-	sourceURL := "https://www.tiktok.com/video/" + id
+	resource := "video"
+	contentType := "video"
+	mediaURL := firstURL(firstAny(video, "playAddr", "play_addr", "downloadAddr", "download_addr"))
+	duration := int(numberValue(video["duration"]))
+	if duration > 1000 {
+		duration = int(math.Round(float64(duration) / 1000))
+	}
+	cover := firstURL(firstAny(video, "cover", "originCover"))
+	if isImage {
+		resource = "photo"
+		contentType = "image"
+		mediaURL = ""
+		duration = 0
+		cover = firstNonEmpty(firstURL(firstAny(imagePost, "images", "imageList")), firstURL(images), cover)
+	}
+	sourceURL := "https://www.tiktok.com/" + resource + "/" + id
 	if username != "" {
-		sourceURL = "https://www.tiktok.com/@" + username + "/video/" + id
+		sourceURL = "https://www.tiktok.com/@" + username + "/" + resource + "/" + id
 	}
 	metrics := map[string]int64{
 		"likes":    metricNumber(firstAny(stats, "diggCount", "digg_count")),
@@ -790,16 +913,11 @@ func normalizeTikTok(value map[string]interface{}) (Item, bool) {
 		"saves":    metricNumber(firstAny(stats, "collectCount", "collect_count")),
 		"shares":   metricNumber(firstAny(stats, "shareCount", "share_count")),
 	}
-	duration := int(numberValue(video["duration"]))
-	if duration > 1000 {
-		duration = int(math.Round(float64(duration) / 1000))
-	}
 	return Item{
 		ExternalID: id, Title: firstLine(description, 300), Description: description,
 		Author: firstNonEmpty(firstString(author, "nickname"), username),
-		URL:    sourceURL, CoverURL: firstURL(firstAny(video, "cover", "originCover")),
-		MediaURL:    firstURL(firstAny(video, "playAddr", "play_addr", "downloadAddr", "download_addr")),
-		ContentType: "video", Duration: duration,
+		URL:    sourceURL, CoverURL: cover, MediaURL: mediaURL,
+		ContentType: contentType, Duration: duration,
 		PublishedAt: unixTime(firstAny(value, "createTime", "create_time")),
 		Heat:        heatFromMetrics(metrics), Metrics: metrics, Raw: value,
 	}, true
