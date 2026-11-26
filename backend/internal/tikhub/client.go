@@ -582,8 +582,6 @@ func (c *Client) searchPage(
 		query.Set("note_type", noteType)
 		query.Set("sort_type", "general")
 		query.Set("time_filter", timeFilter(days))
-		query.Set("source", "explore_feed")
-		query.Set("ai_mode", "0")
 		if searchID != "" {
 			query.Set("search_id", searchID)
 		}

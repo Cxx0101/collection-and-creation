@@ -18,7 +18,7 @@ const palettes = [
   ['#1E293B', '#E11D48', '#FDA4AF', '#FFF1F2'],
 ]
 
-export function Artwork({ seed = 0, label = 'AI Visual', sublabel = 'SparkStudio', className, url, alt, kind = 'image', fit = 'cover' }: Props) {
+export function Artwork({ seed = 0, label = 'AI Visual', sublabel = 'SparkStudio', className, url, alt, kind = 'image', fit = 'contain' }: Props) {
   if (url) {
     if (kind === 'video') {
       return <video className={className} src={url} aria-label={alt || label} controls style={{ width: '100%', height: '100%', objectFit: fit }} />

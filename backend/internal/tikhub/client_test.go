@@ -278,7 +278,7 @@ func TestXiaohongshuSearchUsesPlatformNoteTypes(t *testing.T) {
 		t.Fatalf("Search: %v", err)
 	}
 	if query.Get("note_type") != "普通笔记" || query.Get("time_filter") != "不限" ||
-		query.Get("source") != "explore_feed" || query.Get("ai_mode") != "0" {
+		query.Get("source") != "" || query.Get("ai_mode") != "" {
 		t.Fatalf("query = %#v", query)
 	}
 	if len(result.Items) != 1 || result.Items[0].ExternalID != "note-1" {

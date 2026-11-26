@@ -184,6 +184,16 @@ func main() {
 			Name: "xhs_app_v1", Method: http.MethodGet,
 			Path: "/api/v1/xiaohongshu/app/search_notes?keyword=" + url.QueryEscape("冲锋衣") + "&page=1",
 		},
+		{
+			Name: "xhs_web_v2", Method: http.MethodGet,
+			Path: "/api/v1/xiaohongshu/web_v2/fetch_search_notes?keywords=" + url.QueryEscape("冲锋衣") +
+				"&page=1&sort_type=general&note_type=0",
+		},
+		{
+			Name: "xhs_web_v2_video", Method: http.MethodGet,
+			Path: "/api/v1/xiaohongshu/web_v2/fetch_search_notes?keywords=" + url.QueryEscape("冲锋衣") +
+				"&page=1&sort_type=general&note_type=1",
+		},
 	}
 	if !*clientOnly {
 		client := &http.Client{Timeout: 30 * time.Second}

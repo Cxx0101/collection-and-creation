@@ -411,20 +411,29 @@ function InpaintCanvas({ erase, src }: { erase: boolean; src?: string }) {
     }
     ctx.beginPath()
     ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
-    for (let i = 1; i < stroke.points.length; i += 1) {
-      ctx.lineTo(stroke.points[i].x, stroke.points[i].y)
+    if (stroke.points.length === 2) {
+      ctx.lineTo(stroke.points[1].x, stroke.points[1].y)
+    } else {
+      for (let i = 1; i < stroke.points.length - 1; i += 1) {
+        const current = stroke.points[i]
+        const next = stroke.points[i + 1]
+        ctx.quadraticCurveTo(current.x, current.y, (current.x + next.x) / 2, (current.y + next.y) / 2)
+      }
+      const last = stroke.points[stroke.points.length - 1]
+      ctx.lineTo(last.x, last.y)
     }
     ctx.stroke()
     ctx.globalCompositeOperation = 'source-over'
   }
 
-  const redraw = (nextStrokes: BrushStroke[]) => {
+  const redraw = (nextStrokes: BrushStroke[], activeStroke?: BrushStroke | null) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     nextStrokes.forEach((stroke) => drawStroke(ctx, stroke))
+    if (activeStroke) drawStroke(ctx, activeStroke)
   }
 
   useEffect(() => {
@@ -528,7 +537,7 @@ function InpaintCanvas({ erase, src }: { erase: boolean; src?: string }) {
       mode: brushMode,
     }
     activeStrokeRef.current = stroke
-    drawStroke(ctx, stroke)
+    redraw(strokes, stroke)
     setRedoStrokes([])
   }
 
@@ -541,18 +550,15 @@ function InpaintCanvas({ erase, src }: { erase: boolean; src?: string }) {
     const native = event.nativeEvent as PointerEvent
     const samples = native.getCoalescedEvents?.() || []
     const points = samples.length ? samples : [native]
-    applyStrokeStyle(ctx, stroke)
+    let changed = false
     for (const sample of points) {
       const pos = pointFromClient(sample.clientX, sample.clientY)
       const prev = stroke.points[stroke.points.length - 1]
       if (Math.hypot(pos.x - prev.x, pos.y - prev.y) < 0.8) continue
-      ctx.beginPath()
-      ctx.moveTo(prev.x, prev.y)
-      ctx.lineTo(pos.x, pos.y)
-      ctx.stroke()
       stroke.points.push(pos)
+      changed = true
     }
-    ctx.globalCompositeOperation = 'source-over'
+    if (changed) redraw(strokes, stroke)
   }
 
   const endStroke = () => {
@@ -1349,7 +1355,7 @@ export default function StudioPage() {
                     ▶
                   </span>
                 ) : (
-                  <Artwork seed={item.seed} label="" sublabel="" url={item.url} kind="image" />
+                  <Artwork seed={item.seed} label="" sublabel="" url={item.url} kind="image" fit="contain" />
                 )}
               </span>
               <span>
@@ -1405,16 +1411,12 @@ export default function StudioPage() {
 
     if (!currentSlots.length) {
       return (
-        <button
-          type="button"
-          className="studio-ref-empty-tile"
-          onClick={openPicker}
-          aria-label={isVideoTool ? '上传参考图片或视频' : '上传参考图片'}
-        >
+        <button type="button" className="studio-ref-empty-tile" onClick={openPicker} aria-label={isVideoTool ? '上传参考图片或视频' : '上传参考图片'}>
           <span className="studio-ref-empty-plus">
             <PlusIcon size={20} />
           </span>
-          <strong>参考内容</strong>
+          <strong>{isVideoTool ? '参考内容' : '参考图'}</strong>
+          <small>{isVideoTool ? `最多 ${maxImages + maxVideos} 个` : `最多 ${maxImages} 张`}</small>
         </button>
       )
     }
@@ -1474,6 +1476,7 @@ export default function StudioPage() {
                       sublabel={slot.name}
                       url={slot.url}
                       kind="image"
+                      fit="contain"
                     />
                   )}
                 </button>
@@ -1524,7 +1527,7 @@ export default function StudioPage() {
                 <small className="required">必选</small>
               </div>
               <div className="param-slot-preview" style={{ cursor: 'pointer' }} onClick={() => openAssetPicker('image')} title="点击更换参考图">
-                <Artwork seed={slot.seed} label={labels[index] || `参考图 ${index + 1}`} sublabel={slot.name} url={slot.url} kind={slot.kind} />
+                <Artwork seed={slot.seed} label={labels[index] || `参考图 ${index + 1}`} sublabel={slot.name} url={slot.url} kind={slot.kind} fit="contain" />
                 <CloseButton onClick={() => removeSlot(slot.id)} label={`移除${labels[index] || '参考图'}`} />
               </div>
               <span className="param-slot-name" title={slot.name}>
@@ -2130,7 +2133,7 @@ export default function StudioPage() {
                 <div className="frame-pair-wrap">
                   {currentSlots[0] ? (
                     <div className="ref-thumb-card" style={{ width: 86, height: 104 }}>
-                    <Artwork seed={currentSlots[0].seed} label="首帧" sublabel={currentSlots[0].name} url={currentSlots[0].url} kind={currentSlots[0].kind} />
+                    <Artwork seed={currentSlots[0].seed} label="首帧" sublabel={currentSlots[0].name} url={currentSlots[0].url} kind={currentSlots[0].kind} fit="contain" />
                       <span className="ref-thumb-label">首帧</span>
                       <CloseButton onClick={() => removeSlot(currentSlots[0].id)} label="移除首帧" />
                     </div>
@@ -2151,7 +2154,7 @@ export default function StudioPage() {
                   </span>
                   {currentSlots[1] ? (
                     <div className="ref-thumb-card" style={{ width: 86, height: 104 }}>
-                      <Artwork seed={currentSlots[1].seed} label="尾帧" sublabel={currentSlots[1].name} url={currentSlots[1].url} kind={currentSlots[1].kind} />
+                      <Artwork seed={currentSlots[1].seed} label="尾帧" sublabel={currentSlots[1].name} url={currentSlots[1].url} kind={currentSlots[1].kind} fit="contain" />
                       <span className="ref-thumb-label">尾帧</span>
                       <CloseButton onClick={() => removeSlot(currentSlots[1].id)} label="移除尾帧" />
                     </div>
@@ -2260,7 +2263,7 @@ export default function StudioPage() {
                 {currentSlots.map((slot, index) => (
                   <div style={{ position: 'relative' }} key={slot.id}>
                     <button type="button" className="pfilm-thumb" aria-label={`查看 ${slot.name}`}>
-                      <Artwork seed={slot.seed} label={`产品图 ${index + 1}`} sublabel={slot.name} url={slot.url} kind={slot.kind} />
+                      <Artwork seed={slot.seed} label={`产品图 ${index + 1}`} sublabel={slot.name} url={slot.url} kind={slot.kind} fit="contain" />
                     </button>
                     <CloseButton onClick={() => removeSlot(slot.id)} label={`移除 ${slot.name}`} />
                   </div>
@@ -2304,7 +2307,7 @@ export default function StudioPage() {
           <div className="pfilm-ref-grid" style={{ alignItems: 'center' }}>
             {currentSlots.slice(0, 4).map((slot, index) => (
               <button type="button" className="pfilm-thumb" style={{ width: 58, height: 58 }} key={slot.id} title={slot.name}>
-                <Artwork seed={slot.seed} label={`图${index + 1}`} sublabel="" url={slot.url} kind={slot.kind} />
+                <Artwork seed={slot.seed} label={`图${index + 1}`} sublabel="" url={slot.url} kind={slot.kind} fit="contain" />
               </button>
             ))}
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>已锁定 {currentSlots.length} 张产品原图；按纯画面设计，保留产品原有标识。</span>
@@ -2404,7 +2407,7 @@ export default function StudioPage() {
                   onClick={() => (sourceSlot.url ? setReferencePreview(sourceSlot) : openAssetPicker('image'))}
                   title="点击预览原图"
                 >
-                  <Artwork seed={sourceSlot.seed} label="" sublabel={sourceSlot.name} url={sourceSlot.url} kind={sourceSlot.kind} />
+                  <Artwork seed={sourceSlot.seed} label="" sublabel={sourceSlot.name} url={sourceSlot.url} kind={sourceSlot.kind} fit="contain" />
                 </button>
                 <div className="inpaint-source-meta">
                   <strong title={sourceSlot.name}>{sourceSlot.name}</strong>
@@ -2815,6 +2818,7 @@ export default function StudioPage() {
                     sublabel={`${asset.source} · ${asset.size}`}
                     url={asset.url}
                     kind={asset.kind}
+                    fit="contain"
                   />
                 </div>
                 <div className="card-body-flex">

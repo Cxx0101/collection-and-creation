@@ -55,6 +55,7 @@ export default function CollectPage() {
   const [aiResults, setAiResults] = useState<string[]>([])
   const [newKeyword, setNewKeyword] = useState('')
   const [deleteBatchOpen, setDeleteBatchOpen] = useState(false)
+  const [deleteItem, setDeleteItem] = useState<CollectionItem | null>(null)
 
   const unit = config?.collection.creditsPerPage ?? 10
   const frozen = pages * unit
@@ -144,15 +145,17 @@ export default function CollectPage() {
     }
   }
 
-  const removeItem = async (item: CollectionItem) => {
-    if (!window.confirm(`删除采集作品「${item.title}」？`)) return
+  const removeItem = async () => {
+    if (!deleteItem) return
     try {
-      await del(`/collection/items/${item.id}`)
-      setItems((current) => current.filter((row) => row.id !== item.id))
+      await del(`/collection/items/${deleteItem.id}`)
+      setItems((current) => current.filter((row) => row.id !== deleteItem.id))
       setDetail(null)
       toast('已删除该采集作品')
     } catch (e) {
       toast(e instanceof Error ? e.message : '删除失败', 'error')
+    } finally {
+      setDeleteItem(null)
     }
   }
 
@@ -389,7 +392,7 @@ export default function CollectPage() {
                     <button type="button" className="btn btn-outline btn-sm" onClick={() => setDetail(item)}>
                       详情
                     </button>
-                    <button type="button" className="btn btn-danger-outline btn-sm" onClick={() => removeItem(item)}>
+                    <button type="button" className="btn btn-danger-outline btn-sm" onClick={() => setDeleteItem(item)}>
                       删除
                     </button>
                   </div>
@@ -500,6 +503,15 @@ export default function CollectPage() {
         danger
         onCancel={() => setDeleteBatchOpen(false)}
         onConfirm={() => void removeBatch()}
+      />
+      <ConfirmModal
+        open={Boolean(deleteItem)}
+        title="确认删除"
+        description={deleteItem ? `将永久删除采集作品「${deleteItem.title}」，此操作不可恢复。` : '此操作不可恢复。'}
+        confirmText="确认删除"
+        danger
+        onCancel={() => setDeleteItem(null)}
+        onConfirm={() => void removeItem()}
       />
     </section>
   )
