@@ -298,7 +298,7 @@ export default function ClonePage() {
             <button key={title} type="button" className={`step-card ${step === number ? 'active' : ''}`} onClick={() => setStep(number)}>
               <span className="step-num">{number}</span>
               <div>
-                <div style={{ fontWeight: 700 }}>{title}</div>
+                <div style={{ fontWeight: 600 }}>{title}</div>
                 <div className="help-text">{hint}</div>
               </div>
             </button>
@@ -360,7 +360,7 @@ export default function ClonePage() {
                           <span className="social-metrics-line tabular" style={{ margin: 0 }}>
                             {socialMetricsLine(item.metrics, 'engagement')}
                           </span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', whiteSpace: 'nowrap' }}>
                             {selected ? '已选中 · 下一步' : '选用并继续 →'}
                           </span>
                         </div>
@@ -466,7 +466,7 @@ export default function ClonePage() {
           <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>原视频拆解分镜脚本（可直接改词 / 调时长）</div>
+                <div style={{ fontWeight: 600, fontSize: 15 }}>原视频拆解分镜脚本（可直接改词 / 调时长）</div>
                 <div className="help-text">
                   来源：{sourceTitle} · 商品：{selectedProduct?.name || '未绑定'} · {analysis?.modelNote}
                 </div>
@@ -560,7 +560,7 @@ export default function ClonePage() {
           <>
             <div className="grid-2">
               <div className="card" style={{ padding: 14 }}>
-                <div style={{ fontWeight: 700, marginBottom: 10 }}>原图文重绘组图预览（已自动植入商品）</div>
+                <div style={{ fontWeight: 600, marginBottom: 10 }}>原图文重绘组图预览（已自动植入商品）</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="art-thumb square" style={{ margin: 0 }}>
                     <Artwork seed={selectedProduct?.seed || 0} label="复刻主图 01" sublabel={selectedProduct?.name || '内容主体'} />

@@ -112,7 +112,7 @@ export default function CollectionPage() {
         <div className="aligned-card">
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>TikHub 上游网关与代理</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>TikHub 上游网关与代理</h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className={`badge ${enabled ? 'badge-success' : 'badge-warning'}`}>{enabled ? '已启用' : '未启用'}</span>
                 <button type="button" className={`toggle-pill ${enabled ? 'on' : ''}`} onClick={() => setEnabled((current) => !current)} aria-label="切换 TikHub 启用" />
@@ -151,7 +151,7 @@ export default function CollectionPage() {
 
         <div className="aligned-card">
           <div className="card-body-flex">
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>各平台每页积分与扣费结算规则</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>各平台每页积分与扣费结算规则</h2>
             {PLATFORMS.map(([key, label, hint]) => (
               <div key={key} className="switch-row">
                 <div>
@@ -176,7 +176,7 @@ export default function CollectionPage() {
       </div>
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>爆款热度评分模型权重（0–100 饱和分）</h2>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>爆款热度评分模型权重（0–100 饱和分）</h2>
         <div className="grid-4">
           {[
             ['likes', '点赞权重 (likes)'],
@@ -202,7 +202,7 @@ export default function CollectionPage() {
       </div>
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>接入说明</h2>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>接入说明</h2>
         <div className="grid-3">
           <div className="switch-row">
             <div>

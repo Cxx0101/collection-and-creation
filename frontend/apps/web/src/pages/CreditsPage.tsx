@@ -204,10 +204,8 @@ export default function CreditsPage() {
     <section id="view-credits" className="view-section active" aria-label="积分充值与收银台">
       <div className="page-head">
         <div>
-          <h1 className="page-title">共用积分中心与在线充值</h1>
-          <p className="page-sub">
-            全站统一共用一个积分池（采集按页扣费 + 平台模型按规则扣费）；支持支付宝与微信支付，付款即到账。
-          </p>
+          <h1 className="page-title">积分与充值</h1>
+          <p className="page-sub">采集和平台模型共用积分池；支付通道与价格以管理员当前配置为准。</p>
         </div>
       </div>
 
@@ -257,7 +255,7 @@ export default function CreditsPage() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>1. 选择充值套餐</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>1. 选择充值套餐</h2>
               <span className="help-text">积分套餐由管理员在后台实时维护，多买多送</span>
             </div>
 
@@ -277,7 +275,7 @@ export default function CreditsPage() {
                         <strong style={{ fontSize: 15.5 }}>{pkg.name}</strong>
                         <span className={`badge ${active ? 'badge-accent' : ''}`}>{pkg.badgeText || '积分套餐'}</span>
                       </div>
-                      <div className="tabular" style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+                      <div className="tabular" style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--ink)', fontFamily: 'var(--font-mono)' }}>
                         {money(pkg.priceCents)}
                       </div>
                       <div className="tabular" style={{ margin: '8px 0 12px', fontSize: 13.5, fontWeight: 600, color: 'var(--accent)' }}>
@@ -290,7 +288,7 @@ export default function CreditsPage() {
                         <span className="help-text tabular">
                           折合 ¥{(pkg.priceCents / 100 / Math.max(1, pkg.credits + pkg.bonusCredits)).toFixed(3)} / 分
                         </span>
-                        <span style={{ fontWeight: 700, fontSize: 12.5, color: active ? 'var(--accent)' : 'var(--muted)' }}>
+                        <span style={{ fontWeight: 600, fontSize: 12.5, color: active ? 'var(--ink)' : 'var(--muted)' }}>
                           {active ? '已选定' : '点击选择'}
                         </span>
                       </div>
@@ -304,7 +302,7 @@ export default function CreditsPage() {
           </div>
 
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>2. 选择在线支付方式（即时到账）</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>2. 选择支付方式</h2>
             {fyepayAvailable ? (
               <div className="pay-gateway-card selected">
                 <div className="pay-gateway-head">
@@ -348,9 +346,9 @@ export default function CreditsPage() {
                     onClick={() => setChannel('alipay')}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ width: 40, height: 40, borderRadius: 10, background: '#1677FF', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 15 }}>支</span>
+                      <span style={{ width: 40, height: 40, borderRadius: 10, background: '#1677FF', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 15 }}>支</span>
                       <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontWeight: 700, fontSize: 14.5 }}>支付宝支付</div>
+                        <div style={{ fontWeight: 600, fontSize: 14.5 }}>支付宝支付</div>
                         <div className="help-text">支持支付宝 App 扫码 / 网页当面付</div>
                       </div>
                     </div>
@@ -364,9 +362,9 @@ export default function CreditsPage() {
                     onClick={() => setChannel('wechat')}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ width: 40, height: 40, borderRadius: 10, background: '#07C160', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 15 }}>微</span>
+                      <span style={{ width: 40, height: 40, borderRadius: 10, background: '#07C160', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 15 }}>微</span>
                       <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontWeight: 700, fontSize: 14.5 }}>微信支付</div>
+                        <div style={{ fontWeight: 600, fontSize: 14.5 }}>微信支付</div>
                         <div className="help-text">支持微信 Native V3 扫码即时到账</div>
                       </div>
                     </div>
@@ -382,7 +380,7 @@ export default function CreditsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <span className="pay-mock-logo">测</span>
                       <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontWeight: 700, fontSize: 14.5 }}>开发测试支付</div>
+                        <div style={{ fontWeight: 600, fontSize: 14.5 }}>开发测试支付</div>
                         <div className="help-text">管理员尚未启用真实支付通道，仅用于本地流程调试</div>
                       </div>
                     </div>
@@ -545,12 +543,7 @@ export default function CreditsPage() {
                   border: '1px solid var(--border)',
                   display: 'grid',
                   placeItems: 'center',
-                  background:
-                    checkout.order.status === 'paid'
-                      ? 'var(--success-bg)'
-                      : checkout.order.channel === 'alipay'
-                        ? 'linear-gradient(145deg,#EFF6FF,#DBEAFE)'
-                        : 'linear-gradient(145deg,#ECFDF5,#D1FAE5)',
+                  background: checkout.order.status === 'paid' ? 'var(--success-bg)' : 'var(--bg-subtle)',
                 }}
               >
                 {checkout.order.status === 'paid' ? (

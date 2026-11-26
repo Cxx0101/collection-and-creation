@@ -369,7 +369,7 @@ type BrushStroke = {
   mode: 'brush' | 'eraser'
 }
 
-const BRUSH_COLOR = '#EC4899'
+const BRUSH_COLOR = '#B0175A'
 const DEFAULT_BRUSH_SIZE = 28
 
 function InpaintCanvas({ erase, src }: { erase: boolean; src?: string }) {
@@ -2310,7 +2310,7 @@ export default function StudioPage() {
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>已锁定 {currentSlots.length} 张产品原图；按纯画面设计，保留产品原有标识。</span>
           </div>
           <div className="field">
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-secondary)' }}>创意概念</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-secondary)' }}>创意概念</span>
             <textarea className="pfilm-dark-input" rows={2} maxLength={240} defaultValue="围绕产品核心使用瞬间打造 15 秒商业短片，前 3 秒建立感官钩子，随后多场景强化细节与品牌识别。" />
           </div>
           {[
@@ -2355,7 +2355,7 @@ export default function StudioPage() {
             <span className="badge">{articleStyle === 'editorial' ? 'Editorial' : 'Fresh'}</span>
           </div>
           <div className="wechat-article-body">
-            <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.35, color: articleStyle === 'editorial' ? '#831843' : '#18181B' }}>
+            <div style={{ fontSize: 18, fontWeight: 600, lineHeight: 1.35, color: 'var(--ink)' }}>
               3分钟做出咖啡店 38 元同款冷萃：夏日冰咖消费新趋势
             </div>
             <div className="art-thumb" style={{ marginBottom: 0 }}>
@@ -2460,7 +2460,7 @@ export default function StudioPage() {
             </button>
           </section>
           <section className="studio-composer-dark" aria-label="局部修改要求">
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink-secondary)' }}>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-secondary)' }}>
               {toolId === 'image_inpaint' ? '局部重绘修改要求（必填）' : '局部消除补充说明（选填）'}
             </span>
             <textarea

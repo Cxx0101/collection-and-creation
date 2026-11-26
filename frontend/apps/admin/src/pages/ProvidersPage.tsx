@@ -363,7 +363,7 @@ export default function ProvidersPage() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>平台供应商实例列表（可任意新增多个账号 / 中转节点）</h2>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>平台供应商实例列表（可任意新增多个账号 / 中转节点）</h2>
         {providers.length ? (
           <div className="grid-4">
             {providers.map((provider) => (
@@ -412,7 +412,7 @@ export default function ProvidersPage() {
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>模型积分消费定价规则</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>模型积分消费定价规则</h2>
             <p className="page-sub">支持按次、按张、按秒计费；视频模型可分别设置 480P / 720P / 1080P 每秒积分。任务提交时快照费率，调整价格不会追溯已创建任务。</p>
           </div>
           <button

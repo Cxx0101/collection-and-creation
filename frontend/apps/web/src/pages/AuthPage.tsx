@@ -1,11 +1,33 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { post } from '../api'
 import { useApp } from '../AppContext'
+import { ProofMarkIcon } from '../icons'
+import { ProofSheet } from '../ProofSheet'
 import type { User } from '../types'
-import { SparkIcon } from '../icons'
 
 type AuthMode = 'login' | 'register'
+
+const AUTH_PROOFS = [
+  {
+    src: '/pod-demos/virtual-try-on-after.jpg',
+    alt: '服装上身生成样张',
+    label: 'AI 穿衣',
+    meta: '双图 / 上身',
+  },
+  {
+    src: '/pod-demos/print-extract-after.jpg',
+    alt: '印花提取样张',
+    label: '印花提取',
+    meta: '白底 / 透明',
+  },
+  {
+    src: '/pod-demos/pose-variation-after.jpg',
+    alt: '人物姿势裂变样张',
+    label: '姿势裂变',
+    meta: '多姿势 / 套图',
+  },
+]
 
 export default function AuthPage({ mode }: { mode: AuthMode }) {
   const { config, login, toast } = useApp()
@@ -21,9 +43,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   const registration = config?.registration
   const smsRequired = Boolean(registration?.smsRequired)
   const giftCredits = registration?.giftCredits ?? 100
-  const contactAdmin = registration?.contactAdmin || '当前已关闭短信验证码，忘记密码请联系管理员在后台重置。'
-
-  const title = useMemo(() => (mode === 'login' ? '欢迎回来，继续创作' : '注册即刻开始创作'), [mode])
+  const contactAdmin = registration?.contactAdmin || '忘记密码请联系管理员在后台重置。'
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -33,7 +53,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       if (mode === 'login') {
         const data = await post<{ token: string; user: User }>('/auth/login', { phone: phone.trim(), password })
         login(data.token, data.user)
-        toast('登录成功，欢迎回来', 'success')
+        toast('登录成功', 'success')
         navigate('/')
       } else {
         if (!registration?.enabled) throw new Error('当前暂未开放注册，请联系管理员')
@@ -68,27 +88,40 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   return (
     <div className="auth-route">
       <div className="auth-split">
-        <div className="auth-visual">
-          <div>
-         
-            <h2 style={{ margin: '18px 0 10px', fontSize: 26, fontWeight: 800, lineHeight: 1.25 }}>把爆款采集、AI 创作与复刻浓缩到同一个创作台</h2>
-            <p style={{ margin: 0, color: '#D4D4D8', fontSize: 14, lineHeight: 1.65 }}>
-              手机号注册无需人工审核直接激活，共用单一积分池，支持支付宝与微信支付即时充值。
-            </p>
+        <aside className="auth-visual" aria-label="工作台介绍">
+          <div className="auth-brand">
+            <span className="brand-mark" aria-hidden="true">
+              <ProofMarkIcon size={17} />
+            </span>
+            <span>
+              <strong>星芒创作</strong>
+              <small>SparkStudio</small>
+            </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, background: 'rgba(0,0,0,0.25)', padding: 16, borderRadius: 14, border: '1px solid rgba(255,255,255,0.12)' }}>
-            <div style={{ fontSize: 12, color: '#D4D4D8' }}>新用户注册赠送：<strong>{giftCredits}</strong> 积分</div>
+
+          <div className="auth-visual-copy">
+            <span className="home-kicker">POD 与电商创作工作台</span>
+            <h1>把参考素材、商品图和视频放进同一套工作流</h1>
+            <p>采集爆款、生成商品图、复刻视频，每次产物都自动进入个人资产库。</p>
           </div>
-        </div>
+
+          <ProofSheet items={AUTH_PROOFS} compact label="产物示例" />
+
+          {giftCredits > 0 ? (
+            <div className="auth-register-note">
+              新用户注册赠送 <strong className="tabular">{giftCredits}</strong> 积分
+            </div>
+          ) : null}
+        </aside>
 
         <div className="auth-form-pane">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="auth-form-top">
             <div className="tabs-bar auth-mode-switch" aria-label="登录与注册切换">
               <Link className={`tab-btn ${mode === 'login' ? 'active' : ''}`} to="/login">
                 登录
               </Link>
               <Link className={`tab-btn ${mode === 'register' ? 'active' : ''}`} to="/register">
-                快速注册
+                注册
               </Link>
             </div>
             <button type="button" className="btn btn-outline btn-sm" onClick={() => navigate('/')}>
@@ -96,14 +129,9 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
-            <span className="brand-mark" aria-hidden="true" style={{ width: 38, height: 38 }}>
-              <SparkIcon size={18} />
-            </span>
-            <div>
-              <h2>{title}</h2>
-              <p>{mode === 'login' ? '使用手机号与密码登录你的创作空间' : '无需审核，完成后立即进入创作台'}</p>
-            </div>
+          <div className="auth-form-heading">
+            <h2>{mode === 'login' ? '登录' : '创建账号'}</h2>
+            <p>{mode === 'login' ? '使用手机号和密码进入工作台' : '注册后直接进入创作工作台'}</p>
           </div>
 
           {error ? <div className="auth-error">{error}</div> : null}
@@ -117,12 +145,12 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
             {mode === 'register' ? (
               <label className="field">
                 <span className="field-label">昵称（选填）</span>
-                <input className="input" value={nickname} onChange={(event) => setNickname(event.target.value)} placeholder="如：陈小星" autoComplete="nickname" />
+                <input className="input" value={nickname} onChange={(event) => setNickname(event.target.value)} placeholder="用于工作台显示" autoComplete="nickname" />
               </label>
             ) : null}
 
             <label className="field">
-              <span className="field-label">登录密码</span>
+              <span className="field-label">密码</span>
               <input
                 className="input"
                 type="password"
@@ -147,41 +175,29 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
             ) : null}
 
             {mode === 'register' && !smsRequired ? (
-              <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>
-                当前未启用短信验证码，无需填写验证码即可注册。忘记密码请联系管理员在后台重置。
-              </div>
+              <div className="auth-form-note">当前未启用短信验证码，填写手机号、昵称和密码即可注册。</div>
             ) : null}
 
             <button type="submit" className="btn btn-accent btn-lg auth-submit" disabled={loading}>
-              {loading ? '正在处理…' : mode === 'login' ? '登录创作台' : `注册并开始创作${giftCredits > 0 ? `（赠 ${giftCredits} 积分）` : ''}`}
+              {loading ? '正在处理…' : mode === 'login' ? '登录' : '注册并进入工作台'}
             </button>
           </form>
 
-          <div className="help-text" style={{ textAlign: 'center', lineHeight: 1.65 }}>
+          <div className="auth-switch-copy">
             {mode === 'login' ? (
               <>
                 还没有账号？
-                <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                  立即注册
-                </Link>
+                <Link to="/register">注册</Link>
               </>
             ) : (
               <>
                 已有账号？
-                <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                  去登录
-                </Link>
+                <Link to="/login">登录</Link>
               </>
             )}
           </div>
 
-          {mode === 'login' ? (
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, fontSize: 12, color: 'var(--muted)', lineHeight: 1.7 }}>
-              {smsRequired ? '忘记密码请联系管理员重置。' : contactAdmin}
-              <br />
-              管理后台账号请使用独立后台地址登录。
-            </div>
-          ) : null}
+          <div className="auth-footnote">{mode === 'login' ? contactAdmin : '管理后台账号请使用独立后台地址登录。'}</div>
         </div>
       </div>
     </div>

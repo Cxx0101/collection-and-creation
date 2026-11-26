@@ -238,7 +238,7 @@ export default function CreditsAdminPage() {
       </div>
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>积分充值套餐列表</h2>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>积分充值套餐列表</h2>
         {packages.length ? (
           <div className="table-wrap">
             <table>
@@ -290,10 +290,10 @@ export default function CreditsAdminPage() {
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 10, background: '#18181B', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 15 }}>合</span>
+            <span style={{ width: 38, height: 38, borderRadius: 10, background: '#18181B', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 15 }}>合</span>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Fyepay · 合众纵横聚合收款</h2>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Fyepay · 合众纵横聚合收款</h2>
                 <span className={`badge ${paymentForm.fyepayEnabled ? (fyepayConfigured ? 'badge-success' : 'badge-warning') : ''}`}>
                   {paymentForm.fyepayEnabled ? (fyepayConfigured ? '聚合网关已就绪' : '待补全商户配置') : '未启用'}
                 </span>
@@ -373,8 +373,8 @@ export default function CreditsAdminPage() {
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 32, height: 32, borderRadius: 8, background: '#1677FF', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800 }}>支</span>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>支付宝通道配置</h2>
+                <span style={{ width: 32, height: 32, borderRadius: 8, background: '#1677FF', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 600 }}>支</span>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>支付宝通道配置</h2>
               </div>
               <button type="button" className={`toggle-pill ${paymentForm.alipayEnabled ? 'on' : ''}`} onClick={() => setPaymentForm((current) => ({ ...current, alipayEnabled: !current.alipayEnabled }))} aria-label="开关支付宝通道" />
             </div>
@@ -418,8 +418,8 @@ export default function CreditsAdminPage() {
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 32, height: 32, borderRadius: 8, background: '#07C160', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800 }}>微</span>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>微信支付 V3 通道配置</h2>
+                <span style={{ width: 32, height: 32, borderRadius: 8, background: '#07C160', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 600 }}>微</span>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>微信支付 V3 通道配置</h2>
               </div>
               <button type="button" className={`toggle-pill ${paymentForm.wechatEnabled ? 'on' : ''}`} onClick={() => setPaymentForm((current) => ({ ...current, wechatEnabled: !current.wechatEnabled }))} aria-label="开关微信支付通道" />
             </div>
@@ -467,7 +467,7 @@ export default function CreditsAdminPage() {
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>全站充值订单与异常核销补单</h2>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>全站充值订单与异常核销补单</h2>
           <Select className="select" style={{ width: 160, height: 36 }} value={orderStatus} onChange={(event) => setOrderStatus(event.target.value)}>
             <option value="all">全部订单状态</option>
             <option value="pending">待支付 / 异常</option>

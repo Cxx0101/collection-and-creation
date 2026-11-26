@@ -379,7 +379,7 @@ export default function CollectPage() {
                   </div>
                 </div>
                 <div className="card-body-flex">
-                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.45 }}>{item.title}</h3>
+                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, lineHeight: 1.45 }}>{item.title}</h3>
                   <div className="social-metrics-line tabular">
                     {socialMetricsLine(item.metrics)}
                   </div>

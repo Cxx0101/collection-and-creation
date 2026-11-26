@@ -56,7 +56,7 @@ export default function OverviewPage() {
               <span className="help-text">累计已核销充值实收</span>
               <span className="badge badge-accent">+18.4%</span>
             </div>
-            <div className="tabular" style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.04em' }}>{money(stats?.revenueCents || 0)}</div>
+            <div className="tabular" style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-mono)' }}>{money(stats?.revenueCents || 0)}</div>
             <div className="help-text">支付宝 / 微信在线直充通道</div>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function OverviewPage() {
               <span className="help-text">今日全站积分消耗</span>
               <span className="badge badge-accent">共用积分池</span>
             </div>
-            <div className="tabular" style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.04em' }}>{(stats?.todayConsumed || 0).toLocaleString()}</div>
+            <div className="tabular" style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-mono)' }}>{(stats?.todayConsumed || 0).toLocaleString()}</div>
             <div className="help-text">采集 {stats?.collectionPagesToday || 0} 页 · 创作与复刻按任务流水结算</div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function OverviewPage() {
               <span className="help-text">全站注册用户总数</span>
               <span className="badge">活跃 {stats?.activeUsers || 0}</span>
             </div>
-            <div className="tabular" style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.04em' }}>{(stats?.totalUsers || 0).toLocaleString()}</div>
+            <div className="tabular" style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-mono)' }}>{(stats?.totalUsers || 0).toLocaleString()}</div>
             <div className="help-text">今日新增 {stats?.todayNewUsers || 0} · 自主注册无需审核直接激活</div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function OverviewPage() {
               <span className="help-text">运行中 / 待确认任务</span>
               <span className="badge badge-dark">Worker 正常</span>
             </div>
-            <div className="tabular" style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.04em' }}>{stats?.activeJobs || 0}</div>
+            <div className="tabular" style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.01em', fontFamily: 'var(--font-mono)' }}>{stats?.activeJobs || 0}</div>
             <div className="help-text">支持管理员强制取消并全额退回冻结积分</div>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function OverviewPage() {
         <div className="aligned-card">
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>近 7 日充值与积分消耗趋势</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>近 7 日充值与积分消耗趋势</h2>
               <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowTable((current) => !current)}>
                 {showTable ? '切换图表' : '切换数据明细表'}
               </button>
@@ -134,7 +134,7 @@ export default function OverviewPage() {
                         />
                         <div
                           title={`充值 ${money(point.rechargeCents)}`}
-                          style={{ width: '32%', minWidth: 8, height: `${Math.max(4, (point.rechargeCents / 100 / maxValue) * 200)}px`, background: '#DB2777', borderRadius: '5px 5px 0 0' }}
+                          style={{ width: '32%', minWidth: 8, height: `${Math.max(4, (point.rechargeCents / 100 / maxValue) * 200)}px`, background: 'var(--accent)', borderRadius: '4px 4px 0 0' }}
                         />
                       </div>
                       <span className="help-text tabular">{point.label}</span>
@@ -143,7 +143,7 @@ export default function OverviewPage() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 10 }}>
                   <span className="help-text"><span style={{ display: 'inline-block', width: 8, height: 8, background: '#18181B', borderRadius: 2, marginRight: 6 }} />积分消耗</span>
-                  <span className="help-text"><span style={{ display: 'inline-block', width: 8, height: 8, background: '#DB2777', borderRadius: 2, marginRight: 6 }} />充值实收（¥）</span>
+                  <span className="help-text"><span style={{ display: 'inline-block', width: 8, height: 8, background: 'var(--accent)', borderRadius: 2, marginRight: 6 }} />充值实收（¥）</span>
                 </div>
               </div>
             )}
@@ -152,7 +152,7 @@ export default function OverviewPage() {
 
         <div className="aligned-card">
           <div className="card-body-flex">
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>基础设施运行健康态</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>基础设施运行健康态</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
               <div className="switch-row">
                 <div>

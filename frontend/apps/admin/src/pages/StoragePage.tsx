@@ -152,7 +152,7 @@ export default function StoragePage() {
         <div className="aligned-card">
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{ENGINES.find((item) => item.key === selected)?.name} 配置</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{ENGINES.find((item) => item.key === selected)?.name} 配置</h2>
               <span className={`badge ${form.enabled ? 'badge-success' : ''}`}>{form.enabled ? '主存储' : '未启用'}</span>
             </div>
             <div className="grid-2">
@@ -196,7 +196,7 @@ export default function StoragePage() {
 
         <div className="aligned-card">
           <div className="card-body-flex">
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>CORS 跨域清单与对象存储联动</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>CORS 跨域清单与对象存储联动</h2>
             <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div><strong>Bucket 必须放行以下浏览器跨域规则：</strong></div>
               <div>· 允许来源：<code>{WEB_ORIGIN}</code>（C 端前台域名）</div>

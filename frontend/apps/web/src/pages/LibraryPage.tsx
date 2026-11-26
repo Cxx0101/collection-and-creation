@@ -449,7 +449,7 @@ export default function LibraryPage() {
                         <button
                           type="button"
                           className="thumb-pill"
-                          style={{ pointerEvents: 'auto', cursor: 'pointer', background: checked ? '#DB2777' : 'rgba(9,9,11,0.72)' }}
+                          style={{ pointerEvents: 'auto', cursor: 'pointer', background: checked ? 'var(--accent)' : 'rgba(9,9,11,0.72)' }}
                           onClick={(event) => {
                             event.stopPropagation()
                             setSelected((current) =>

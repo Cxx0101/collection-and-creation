@@ -310,7 +310,7 @@ export default function ProfilePage() {
         <div className="aligned-card">
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>账号与安全设置</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>账号与安全设置</h2>
               <span className="badge badge-success">已认证用户</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
@@ -356,7 +356,7 @@ export default function ProfilePage() {
         <div className="aligned-card">
           <div className="card-body-flex">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>我的微信公众号绑定</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>我的微信公众号绑定</h2>
               <button type="button" className="btn btn-primary btn-sm" onClick={() => openWechat()}>
                 + 绑定公众号
               </button>
@@ -407,7 +407,7 @@ export default function ProfilePage() {
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>我的自有大模型供应商（调用 0 积分）</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>我的自有大模型供应商（调用 0 积分）</h2>
             <p className="page-sub">可自由新增多套个人模型接口；密钥由服务端 AES-GCM 加密存储且不回显，Base URL 强制公网 HTTPS（防 SSRF）。</p>
           </div>
           <button type="button" className="btn btn-accent" onClick={() => openProvider()}>

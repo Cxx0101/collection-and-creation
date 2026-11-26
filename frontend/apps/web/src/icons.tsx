@@ -9,12 +9,24 @@ function base({ size = 20, ...props }: IconProps) {
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 1.9,
+    strokeWidth: 1.8,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
     ...props,
   }
+}
+
+export function ProofMarkIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 9V5a1 1 0 0 1 1-1h4" />
+      <path d="M15 4h4a1 1 0 0 1 1 1v4" />
+      <path d="M20 15v4a1 1 0 0 1-1 1h-4" />
+      <path d="M9 20H5a1 1 0 0 1-1-1v-4" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  )
 }
 
 export function GridIcon(props: IconProps) {
@@ -61,6 +73,16 @@ export function CloneIcon(props: IconProps) {
     <svg {...base(props)}>
       <rect x="9" y="9" width="13" height="13" rx="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  )
+}
+
+export function StudioIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="m7 15 3-4 2.5 2 2.5-3.5 2 5.5" />
+      <circle cx="8.5" cy="8.5" r="1" />
     </svg>
   )
 }

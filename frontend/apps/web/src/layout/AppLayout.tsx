@@ -5,11 +5,13 @@ import { useApp } from '../AppContext'
 import { ConfirmModal } from '../components'
 import type { StudioJob } from '../types'
 import {
+  CloneIcon,
   DownloadIcon,
   FolderIcon,
   GridIcon,
+  ProofMarkIcon,
   SearchIcon,
-  SparkIcon,
+  StudioIcon,
   UserIcon,
   WalletIcon,
   CloseIcon,
@@ -18,8 +20,8 @@ import {
 const NAV_ITEMS = [
   { id: 'home', label: '广场', to: '/', icon: GridIcon },
   { id: 'collect', label: '采集', to: '/collect', icon: DownloadIcon },
-  { id: 'studio', label: '创作', to: '/studio', icon: SparkIcon },
-  { id: 'clone', label: '复刻', to: '/clone', icon: SparkIcon },
+  { id: 'studio', label: '创作', to: '/studio', icon: StudioIcon },
+  { id: 'clone', label: '复刻', to: '/clone', icon: CloneIcon },
   { id: 'library', label: '资产', to: '/library', icon: FolderIcon },
   { id: 'credits', label: '积分', to: '/credits', icon: WalletIcon },
 ]
@@ -27,8 +29,8 @@ const NAV_ITEMS = [
 const MOBILE_ITEMS = [
   { id: 'home', label: '广场', to: '/', icon: GridIcon },
   { id: 'collect', label: '采集', to: '/collect', icon: DownloadIcon },
-  { id: 'studio', label: '创作', to: '/studio', icon: SparkIcon },
-  { id: 'clone', label: '复刻', to: '/clone', icon: SparkIcon },
+  { id: 'studio', label: '创作', to: '/studio', icon: StudioIcon },
+  { id: 'clone', label: '复刻', to: '/clone', icon: CloneIcon },
   { id: 'credits', label: '积分', to: '/credits', icon: WalletIcon },
 ]
 
@@ -132,17 +134,17 @@ export default function AppLayout({ children }: { children?: ReactNode }) {
         <div className="topbar-left">
           <button type="button" className="brand" onClick={() => navigate('/')} aria-label="返回灵感广场">
             <span className="brand-mark" aria-hidden="true">
-              <SparkIcon size={18} />
+              <ProofMarkIcon size={17} />
             </span>
             <span className="brand-text">
               星芒创作 <span className="brand-en">SparkStudio</span>
             </span>
           </button>
           <div className="topbar-search">
-            <SearchIcon size={15} color="#71717A" strokeWidth={2} />
+            <SearchIcon size={15} />
             <input
               type="search"
-              placeholder="搜索爆款模板、粘贴视频链接一键复刻..."
+              placeholder="搜索作品或粘贴链接"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               onKeyDown={(event) => event.key === 'Enter' && submitSearch()}
@@ -152,19 +154,17 @@ export default function AppLayout({ children }: { children?: ReactNode }) {
 
         <div className="topbar-right">
           <button type="button" className="pill-btn" onClick={openTasks} aria-label="查看后台任务进度">
-            <span className="task-dot" aria-hidden="true" />
+            {activeJobs > 0 ? <span className="task-dot" aria-hidden="true" /> : null}
             <span>任务</span>
             <span className="badge tabular">{activeJobs}</span>
           </button>
 
           <button type="button" className="pill-btn credit-pill" onClick={() => navigate('/credits')} aria-label="查看并充值共用积分">
-            <WalletIcon size={15} strokeWidth={2.1} />
+            <WalletIcon size={15} />
             <span className="tabular">
               可用 <strong>{(user?.credits ?? 0).toLocaleString()}</strong>
             </span>
-            <span className="credit-recharge-lbl" style={{ color: '#71717A', fontWeight: 500 }}>
-              充值
-            </span>
+            <span className="credit-recharge-lbl">充值</span>
           </button>
 
           <button type="button" className="user-chip" onClick={() => navigate('/profile')} aria-label="个人中心与自定义模型绑定">
@@ -179,14 +179,14 @@ export default function AppLayout({ children }: { children?: ReactNode }) {
           const Icon = item.icon
           return (
             <NavLink key={item.id} to={item.to} end={item.to === '/'} className={(state) => navClass(state, 'rail-item')}>
-              <Icon size={20} />
+              <Icon size={19} />
               <span>{item.label}</span>
             </NavLink>
           )
         })}
         <div className="rail-spacer" />
         <NavLink to="/profile" className={({ isActive }) => navClass({ isActive }, 'rail-item')}>
-          <UserIcon size={20} />
+          <UserIcon size={19} />
           <span>我的</span>
         </NavLink>
       </nav>
@@ -196,7 +196,7 @@ export default function AppLayout({ children }: { children?: ReactNode }) {
           const Icon = item.icon
           return (
             <NavLink key={item.id} to={item.to} end={item.to === '/'} className={(state) => navClass(state, 'mobile-tab-btn')}>
-              <Icon size={18} strokeWidth={2} />
+              <Icon size={18} />
               <span>{item.label}</span>
             </NavLink>
           )

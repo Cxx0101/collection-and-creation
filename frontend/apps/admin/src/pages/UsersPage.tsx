@@ -217,7 +217,7 @@ export default function UsersPage() {
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>注册与短信验证码策略</h2>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>注册与短信验证码策略</h2>
           <button type="button" className="btn btn-primary btn-sm" onClick={() => void savePolicy()} disabled={busy}>
             保存策略配置
           </button>
@@ -254,7 +254,7 @@ export default function UsersPage() {
             </div>
             <input
               className="input tabular"
-              style={{ width: 96, height: 36, textAlign: 'right', fontWeight: 700 }}
+              style={{ width: 96, height: 36, textAlign: 'right', fontWeight: 600 }}
               type="number"
               min={0}
               value={policy.giftCredits}
@@ -542,7 +542,7 @@ export default function UsersPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div className="badge badge-success" style={{ alignSelf: 'flex-start' }}>重置成功</div>
             <div>请将以下临时密码安全地交给用户，页面关闭后不再展示：</div>
-            <div className="card tabular" style={{ padding: 14, fontSize: 20, fontWeight: 800, textAlign: 'center', letterSpacing: '0.08em' }}>
+            <div className="card tabular" style={{ padding: 14, fontSize: 20, fontWeight: 600, textAlign: 'center', letterSpacing: '0.04em' }}>
               {tempPassword}
             </div>
             <div className="help-text">旧设备的登录状态已经失效，用户需使用新密码重新登录。</div>
