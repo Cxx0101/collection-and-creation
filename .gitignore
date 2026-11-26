@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# Local runtime, generated media and debug artifacts
+.tools/
+.playwright-cli/
+output/
+data/
+backend/data/
+backend/tmp_probe/
+backend/frontend/
+backend/*.mp4
+frontend/apps/web/product-retouch-final.png
+*.log
+
+# Environment and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!backend/.env.example
+!**/.env.example
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Tests and local databases
+coverage/
+test-results/
+playwright-report/
+*.sqlite
+*.sqlite3
+
+# Go binaries
+backend/sparkstudio-api
+backend/sparkstudio-api.exe
+backend/*.exe

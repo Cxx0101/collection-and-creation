@@ -1,0 +1,143 @@
+.root-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.view-section.active {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-route {
+  min-height: 100vh;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(219, 39, 119, 0.08), transparent 34%),
+    radial-gradient(circle at 82% 80%, rgba(24, 24, 27, 0.06), transparent 38%),
+    var(--bg);
+}
+
+.auth-route .auth-split {
+  display: grid;
+}
+
+.auth-route .auth-form-pane form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-route .auth-mode-switch {
+  gap: 2px;
+  padding: 3px;
+  border-radius: 11px;
+  background: #F4F4F5;
+}
+
+.auth-route .auth-mode-switch .tab-btn {
+  min-width: 84px;
+  min-height: 32px;
+  padding: 0 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #71717A;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.auth-route .auth-mode-switch .tab-btn.active {
+  color: var(--ink);
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(9, 9, 11, 0.08);
+}
+
+.auth-route .auth-mode-switch .tab-btn:hover:not(.active) {
+  color: var(--ink-secondary);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.auth-route .auth-mode-switch .tab-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.16);
+}
+
+.auth-error {
+  border: 1px solid var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.text-button {
+  color: var(--accent);
+  font-weight: 650;
+  font-size: 12px;
+}
+
+.empty-state {
+  padding: 42px 20px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  font-size: 13px;
+}
+
+.auth-route .auth-form-pane {
+  min-height: 580px;
+}
+
+.auth-route .auth-form-pane h2 {
+  margin: 0;
+  font-size: 23px;
+  letter-spacing: -0.02em;
+}
+
+.auth-route .auth-form-pane p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.auth-submit {
+  width: 100%;
+  min-height: 44px;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.studio-empty-copy {
+  padding: 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.clickable-svg {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .auth-route { padding: 16px; }
+}

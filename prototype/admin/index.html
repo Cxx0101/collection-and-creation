@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星芒创作 SparkStudio · 统一管理后台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --bg-subtle: #F4F4F5;
+      --card: #FFFFFF;
+      --ink: #09090B;
+      --ink-secondary: #3F3F46;
+      --muted: #52525B;
+      --border: #E4E4E7;
+      --border-strong: #D4D4D8;
+      --primary: #18181B;
+      --accent: #DB2777;
+      --accent-hover: #BE185D;
+      --accent-soft: #FDF2F8;
+      --accent-border: #FBCFE8;
+      --success: #15803D;
+      --success-bg: #F0FDF4;
+      --success-border: #BBF7D0;
+      --warning: #B45309;
+      --warning-bg: #FFFBEB;
+      --warning-border: #FDE68A;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --danger-border: #FECACA;
+      --alipay: #1677FF;
+      --wechat: #07C160;
+      --shadow-xs: 0 1px 2px rgba(9, 9, 11, 0.04);
+      --shadow-sm: 0 2px 6px rgba(9, 9, 11, 0.05);
+      --shadow-md: 0 8px 20px rgba(9, 9, 11, 0.07);
+      --shadow-lg: 0 18px 38px rgba(9, 9, 11, 0.14);
+      --sidebar-w: 248px;
+      --header-h: 64px;
+      --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: transparent; padding: 0; }
+    a { color: inherit; text-decoration: none; }
+    svg { display: block; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-h);
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 22px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15.5px; letter-spacing: -0.02em; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--primary); color: #FFFFFF; display: grid; place-items: center; flex-shrink: 0; }
+
+    .sidebar {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-w);
+      background: #FFFFFF;
+      border-right: 1px solid var(--border);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+      z-index: 30;
+    }
+    .nav-section-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; padding: 10px 10px 4px; }
+    .side-btn {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      text-align: left;
+      transition: background-color 140ms ease, color 140ms ease;
+    }
+    .side-btn:hover { background: var(--bg-subtle); color: var(--ink); }
+    .side-btn.active { background: var(--primary); color: #FFFFFF; }
+
+    .main-wrap { margin-top: var(--header-h); margin-left: var(--sidebar-w); min-height: calc(100vh - var(--header-h)); padding: 24px 32px 56px; }
+    .container { width: 100%; max-width: none; margin: 0; display: flex; flex-direction: column; gap: 22px; }
+    .view-section { display: none; flex-direction: column; gap: 20px; }
+    .view-section.active { display: flex; }
+
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .page-title { margin: 0; font-size: 23px; font-weight: 800; letter-spacing: -0.025em; }
+    .page-sub { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-xs); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+    .aligned-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; height: 100%; }
+    .card-body-flex { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .card-footer-stick { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
+    }
+    .btn-sm { min-height: 34px; padding: 0 12px; font-size: 12.5px; border-radius: 8px; }
+    .btn-primary { background: var(--primary); color: #FFFFFF; }
+    .btn-primary:hover { background: #27272A; }
+    .btn-accent { background: var(--accent); color: #FFFFFF; }
+    .btn-accent:hover { background: var(--accent-hover); }
+    .btn-outline { background: #FFFFFF; border: 1px solid var(--border); color: var(--ink); }
+    .btn-outline:hover { background: var(--bg-subtle); border-color: var(--border-strong); }
+    .btn-danger-outline { background: #FFFFFF; border: 1px solid var(--danger-border); color: var(--danger); }
+    .btn-danger-outline:hover { background: var(--danger-bg); }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12.5px; font-weight: 600; color: var(--ink-secondary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .input, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+      padding: 0 12px;
+      height: 40px;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+    .textarea { height: auto; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+    .select {
+      --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23DB2777' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      --select-arrow-well: #F4F4F5;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      min-width: 0;
+      height: 40px;
+      padding: 0 42px 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background-color: #FFFFFF;
+      background-image: var(--select-chevron), radial-gradient(circle at calc(100% - 19px) 50%, var(--select-arrow-well) 0, var(--select-arrow-well) 11px, transparent 11.5px);
+      background-repeat: no-repeat;
+      background-position: right 12px center, 0 0;
+      background-size: 14px 14px, auto;
+      cursor: pointer;
+      color: var(--ink);
+      font-size: 13.5px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(9, 9, 11, 0.03);
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+    .select::-ms-expand { display: none; }
+    .select:hover:not(:disabled) { border-color: var(--border-strong); background-color: #FFFFFF; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 10px rgba(9, 9, 11, 0.055); }
+    .select:focus {
+      --select-chevron: var(--select-chevron-active);
+      --select-arrow-well: #FDF2F8;
+      outline: none;
+      border-color: #F472B6;
+      box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    }
+    .select:disabled { cursor: not-allowed; opacity: 1; color: #A1A1AA; background-color: var(--bg-subtle); box-shadow: none; }
+    .select option { background: #FFFFFF; color: var(--ink); font-weight: 500; }
+    .select option:checked { color: #9D174D; font-weight: 600; }
+    .input:focus, .textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08); }
+    .help-text { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--ink-secondary);
+      white-space: nowrap;
+    }
+    .badge-accent { background: var(--accent-soft); border-color: var(--accent-border); color: #9D174D; }
+    .badge-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+    .badge-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); }
+    .badge-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+    .badge-dark { background: var(--primary); border-color: var(--primary); color: #FFFFFF; }
+    .chip-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+    .toggle-pill { width: 44px; height: 24px; border-radius: 999px; background: #D4D4D8; position: relative; transition: background-color 150ms ease; flex-shrink: 0; }
+    .toggle-pill::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; transition: transform 150ms ease; box-shadow: var(--shadow-xs); }
+    .toggle-pill.on { background: var(--accent); }
+    .toggle-pill.on::after { transform: translateX(20px); }
+
+    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: #FFFFFF; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 12px 14px; background: var(--bg); color: var(--muted); font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .engine-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; background: #FFFFFF; display: flex; flex-direction: column; height: 100%; cursor: pointer; text-align: left; transition: all 150ms ease; }
+    .engine-card:hover { border-color: var(--primary); }
+    .engine-card.selected { border-color: var(--accent); background: #FFFCFD; box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.12); }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(9, 9, 11, 0.52); backdrop-filter: blur(4px); z-index: 80; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #FFFFFF; border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
+    .modal-box.wide { max-width: 820px; }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; background: #FFFFFF; z-index: 2; }
+    .modal-head h3 { margin: 0; font-size: 17px; font-weight: 700; }
+    .modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 15px; }
+    .modal-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: #FAFAFA; position: sticky; bottom: 0; }
+
+    .toast-stack { position: fixed; right: 20px; bottom: 24px; z-index: 120; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { pointer-events: auto; min-width: 260px; max-width: 380px; background: var(--primary); color: #FFFFFF; padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); }
+    .toast.success { background: #14532D; }
+    .toast.error { background: #991B1B; }
+
+    .mobile-admin-bar { display: none; gap: 6px; overflow-x: auto; padding: 10px 14px; background: #FFFFFF; border-bottom: 1px solid var(--border); }
+
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 860px) {
+      .sidebar { display: none; }
+      .main-wrap { margin-left: 0; padding: 16px 14px 48px; }
+      .mobile-admin-bar { display: flex; margin-top: var(--header-h); }
+      .main-wrap { margin-top: 0; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span>星芒创作 · 统一管理后台</span>
+      <span class="badge badge-dark">Admin Console</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span class="badge badge-success">MySQL 5.7/8.0 兼容 · Go Worker</span>
+      <a class="btn btn-outline btn-sm" href="../index.html">原型导航</a>
+      <a class="btn btn-outline btn-sm" href="../web/index.html" target="_blank">打开 C 端前台</a>
+    </div>
+  </header>
+
+  <aside class="sidebar" aria-label="后台导航">
+    <div class="nav-section-label">运营总览</div>
+    <button type="button" class="side-btn active" data-tab="overview" onclick="switchAdminTab('overview')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+      <span>全站概览与健康</span>
+    </button>
+
+    <div class="nav-section-label">用户与商业化</div>
+    <button type="button" class="side-btn" data-tab="users" onclick="switchAdminTab('users')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>用户与注册策略</span>
+    </button>
+    <button type="button" class="side-btn" data-tab="credits" onclick="switchAdminTab('credits')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span>积分套餐与支付通道</span>
+    </button>
+
+    <div class="nav-section-label">核心基础设施配置</div>
+    <button type="button" class="side-btn" data-tab="providers" onclick="switchAdminTab('providers')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
+      <span>多供应商大模型与定价</span>
+    </button>
+    <button type="button" class="side-btn" data-tab="collection" onclick="switchAdminTab('collection')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>TikHub 采集与热度</span>
+    </button>
+    <button type="button" class="side-btn" data-tab="storage" onclick="switchAdminTab('storage')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+      <span>媒体存储 (OSS/TOS/COS)</span>
+    </button>
+
+    <div class="nav-section-label">可观测与审计</div>
+    <button type="button" class="side-btn" data-tab="jobs" onclick="switchAdminTab('jobs')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>全站任务与退费监控</span>
+    </button>
+  </aside>
+
+  <nav class="mobile-admin-bar" aria-label="移动端后台导航">
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('overview')">概览</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('users')">用户策略</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('credits')">套餐支付</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('providers')">模型定价</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('collection')">TikHub</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('storage')">存储</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="switchAdminTab('jobs')">任务</button>
+  </nav>
+
+  <main class="main-wrap">
+    <div class="container">
+      <section id="tab-overview" class="view-section active">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">全站运营概览与系统健康</h1>
+            <p class="page-sub">非 SaaS 统一治理视图：监控支付宝/微信充值营收、积分消费消耗与 Go Worker 异步任务运行态。</p>
+          </div>
+          <span class="badge badge-success">全站服务运行正常</span>
+        </div>
+
+        <div class="grid-4" id="adminOverviewKpis"></div>
+
+        <div class="grid-2">
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <h2 style="margin:0;font-size:16px;font-weight:700;">近 7 日充值与积分消耗趋势</h2>
+                <button type="button" class="btn btn-outline btn-sm" onclick="toggleChartDataTable()">切换数据明细表</button>
+              </div>
+              <div id="adminTrendChartWrap" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <h2 style="margin:0;font-size:16px;font-weight:700;">基础设施运行健康态</h2>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+                <div class="switch-row">
+                  <div><strong>数据库引擎</strong><div class="help-text">MySQL 8.0（强制 utf8mb4_unicode_ci · 兼容 5.7）</div></div>
+                  <span class="badge badge-success">连接池 12/64</span>
+                </div>
+                <div class="switch-row">
+                  <div><strong>MySQL + Go Worker 异步任务</strong><div class="help-text">每 2 秒可靠认领 · 创作双并发 · 失败自动退分</div></div>
+                  <span class="badge badge-success">0 积压</span>
+                </div>
+                <div class="switch-row">
+                  <div><strong>当前激活对象存储</strong><div class="help-text" id="healthStorageSummary">阿里云 OSS（oss-cn-hangzhou）</div></div>
+                  <span class="badge badge-accent">在线托管</span>
+                </div>
+                <div class="switch-row">
+                  <div><strong>支付网关回调状态</strong><div class="help-text">支付宝 RSA2 + 微信支付 V3 AES-GCM 验签</div></div>
+                  <span class="badge badge-success">双通道开启</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-users" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">用户管理与注册安全策略</h1>
+            <p class="page-sub">控制自主注册开关、短信验证码网关、新人赠分，以及关闭短信后管理员后台重置密码（立即递增 token_version）。</p>
+          </div>
+          <button type="button" class="btn btn-accent" onclick="openUserModal()">+ 新增用户</button>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:700;">注册与短信验证码策略</h2>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveAuthPolicy()">保存策略配置</button>
+          </div>
+          <div class="grid-3">
+            <div class="switch-row">
+              <div><strong>开放用户自主注册</strong><div class="help-text">手机号注册，无需审核即刻激活</div></div>
+              <button type="button" class="toggle-pill on" id="toggleOpenRegister" onclick="togglePolicyFlag('openRegister')" aria-label="切换开放注册"></button>
+            </div>
+            <div class="switch-row">
+              <div><strong>开启短信验证码校验</strong><div class="help-text">关闭后隐藏验证码，由管理员重置</div></div>
+              <button type="button" class="toggle-pill" id="toggleSmsEnabled" onclick="togglePolicyFlag('smsEnabled')" aria-label="切换短信验证码"></button>
+            </div>
+            <div class="switch-row">
+              <div><strong>新用户注册赠送积分</strong><div class="help-text">注册完成即自动写入共享积分池</div></div>
+              <input id="policyBonusCredits" class="input tabular" style="width:96px;height:36px;text-align:right;font-weight:700;" type="number" min="0" value="100" aria-label="新用户注册赠送积分" />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <span class="field-label">关闭短信时「忘记密码」联系管理员指引文案</span>
+              <input id="policyAdminContactCopy" class="input" value="当前未启用短信找回，请联系企业微信管理员或客服微信 SparkAdmin 重置密码。" />
+            </div>
+            <div class="field" id="smsGatewayBox">
+              <span class="field-label">短信网关参数（仅开启短信时生效）</span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <input class="input" placeholder="签名：星芒创作" value="星芒创作" />
+                <input class="input" placeholder="模板 ID：SMS_465201" value="SMS_465201" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <input id="userSearchInput" class="input" style="max-width:300px;" placeholder="搜索手机号或昵称..." oninput="renderUsersTable()" />
+            <span class="help-text">注意：管理员重置密码或禁用账号会立即递增 <code>token_version</code>，服务端校验到版本变化后强制旧端下线。</span>
+          </div>
+          <div class="table-wrap" id="adminUsersTableWrap"></div>
+        </div>
+      </section>
+
+      <section id="tab-credits" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">积分套餐、支付通道与充值订单</h1>
+            <p class="page-sub">支持自定义增删改查积分套餐，并配置支付宝与微信支付商户通道（纯在线直充即时到账）。</p>
+          </div>
+          <button type="button" class="btn btn-accent" onclick="openPackageModal()">+ 新建积分套餐</button>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+          <h2 style="margin:0;font-size:16px;font-weight:700;">积分充值套餐列表（完整 CRUD · 实时同步 C 端前台）</h2>
+          <div class="table-wrap" id="adminPackagesTableWrap"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="width:32px;height:32px;border-radius:8px;background:#1677FF;color:#FFFFFF;display:grid;place-items:center;font-weight:800;">支</span>
+                  <h2 style="margin:0;font-size:16px;font-weight:700;">支付宝通道配置</h2>
+                </div>
+                <button type="button" class="toggle-pill on" id="toggleAlipayOn" onclick="this.classList.toggle('on')" aria-label="开关支付宝通道"></button>
+              </div>
+              <div class="field"><span class="field-label">应用 AppID</span><input id="aliAppId" class="input tabular" value="2021004198201190" /></div>
+              <div class="field"><span class="field-label">应用私钥 RSA2（AES-GCM 加密 · 留空不改）</span><input class="input" type="password" placeholder="********（已配置加密存储）" /></div>
+              <div class="field"><span class="field-label">支付宝公钥（AES-GCM 加密）</span><input class="input" type="password" placeholder="********（已配置加密存储）" /></div>
+              <div class="field">
+                <span class="field-label"><span>异步回调 Notify URL</span><button type="button" style="color:var(--accent);font-size:12px;font-weight:600;" onclick="copyText('https://api.sparkstudio.cn/api/v1/payments/alipay/notify','已复制支付宝回调地址')">复制 URL</button></span>
+                <input class="input" value="https://api.sparkstudio.cn/api/v1/payments/alipay/notify" readonly />
+              </div>
+            </div>
+            <div class="card-footer-stick">
+              <button type="button" class="btn btn-outline btn-sm" onclick="showToast('支付宝 RSA2 验签自检通过','success')">测试签名</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="showToast('支付宝通道配置已加密保存','success')">保存支付宝配置</button>
+            </div>
+          </div>
+
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="width:32px;height:32px;border-radius:8px;background:#07C160;color:#FFFFFF;display:grid;place-items:center;font-weight:800;">微</span>
+                  <h2 style="margin:0;font-size:16px;font-weight:700;">微信支付 V3 通道配置</h2>
+                </div>
+                <button type="button" class="toggle-pill on" id="toggleWechatOn" onclick="this.classList.toggle('on')" aria-label="开关微信支付通道"></button>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="field"><span class="field-label">公众号/AppID</span><input class="input tabular" value="wx9c3a7182b19a0011" /></div>
+                <div class="field"><span class="field-label">微信商户号 MchID</span><input class="input tabular" value="1658209412" /></div>
+              </div>
+              <div class="field"><span class="field-label">APIv3 密钥 & 证书序列号（AES-GCM 加密）</span><input class="input" type="password" placeholder="********（已配置加密存储）" /></div>
+              <div class="field"><span class="field-label">商户私钥 apiclient_key.pem</span><input class="input" type="password" placeholder="********（已上传加密）" /></div>
+              <div class="field">
+                <span class="field-label"><span>异步回调 Notify URL</span><button type="button" style="color:var(--accent);font-size:12px;font-weight:600;" onclick="copyText('https://api.sparkstudio.cn/api/v1/payments/wechat/notify','已复制微信支付回调地址')">复制 URL</button></span>
+                <input class="input" value="https://api.sparkstudio.cn/api/v1/payments/wechat/notify" readonly />
+              </div>
+            </div>
+            <div class="card-footer-stick">
+              <button type="button" class="btn btn-outline btn-sm" onclick="showToast('微信支付 V3 平台证书校验通过','success')">测试证书</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="showToast('微信支付配置已加密保存','success')">保存微信配置</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <h2 style="margin:0;font-size:16px;font-weight:700;">全站充值订单与异常核销补单</h2>
+            <select id="adminOrderStatusFilter" class="select" style="width:160px;height:36px;" onchange="renderAdminOrders()">
+              <option value="all">全部订单状态</option>
+              <option value="pending">待支付 / 异常</option>
+              <option value="paid">已支付</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="adminOrdersTableWrap"></div>
+        </div>
+      </section>
+
+      <section id="tab-providers" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">多供应商大模型接入与积分定价</h1>
+            <p class="page-sub">借鉴原项目配置并升级为多实例自由新增/编辑（支持同协议多中转源、拉取模型、能力打标），彻底移除 ComfyUI。</p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline" onclick="openPricingRuleModal()">+ 新增定价规则</button>
+            <button type="button" class="btn btn-accent" onclick="openAdminProviderModal()">+ 新增平台大模型供应商</button>
+          </div>
+        </div>
+
+        <div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:end;">
+          <div class="field"><span class="field-label">全局默认理解 / 分镜 / 文案模型</span><select id="globalDefaultUnderstandingSel" class="select"></select></div>
+          <div class="field"><span class="field-label">全局默认生图模型</span><select id="globalDefaultImageSel" class="select"></select></div>
+          <button type="button" class="btn btn-primary" onclick="showToast('已保存全局默认平台模型路由','success')">保存全局默认</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <h2 style="margin:0;font-size:16px;font-weight:700;">平台供应商实例列表（可任意新增多个账号/中转节点）</h2>
+          <div class="grid-4" id="adminProvidersGrid"></div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h2 style="margin:0;font-size:16px;font-weight:700;">模型积分消费定价规则（完整 CRUD）</h2>
+              <p class="page-sub">支持按次（per_call）、按张（per_item）、按秒（per_second）与分辨率系数（1080p: 1.5x）；提交任务时快照费率防止调价冲突。</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openPricingRuleModal()">+ 新增定价</button>
+          </div>
+          <div class="table-wrap" id="adminPricingTableWrap"></div>
+        </div>
+      </section>
+
+      <section id="tab-collection" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">TikHub 采集配置与热度算法权重</h1>
+            <p class="page-sub">统一托管 TikHub 上游密钥与可选代理，按采集页数配置前端扣费单价，上限锁定 30 页。</p>
+          </div>
+          <button type="button" class="btn btn-accent" onclick="showToast('TikHub 与热度权重配置已生效','success')">保存全部采集配置</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <h2 style="margin:0;font-size:16px;font-weight:700;">TikHub 上游网关与代理</h2>
+              <div class="field"><span class="field-label">TikHub API Base URL</span><input class="input" value="https://api.tikhub.io" /></div>
+              <div class="field"><span class="field-label">TikHub API Key（AES-GCM 加密 · 不回显）</span><input class="input" type="password" placeholder="********（已配置）" /></div>
+              <div class="field"><span class="field-label">可选出站代理 Proxy（留空直连）</span><input class="input" placeholder="http://127.0.0.1:7890 或 socks5://..." /></div>
+              <div class="field"><span class="field-label">单视频直链刷新兜底消耗积分（默认 0 免费兜底）</span><input class="input tabular" type="number" min="0" value="0" /></div>
+            </div>
+            <div class="card-footer-stick">
+              <span class="help-text">单页最大上限锁定：30 页</span>
+              <button type="button" class="btn btn-outline btn-sm" onclick="showToast('TikHub 上游连通测试通过（延迟 118ms）','success')">测试 TikHub 连通性</button>
+            </div>
+          </div>
+
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <h2 style="margin:0;font-size:16px;font-weight:700;">各平台每页积分与扣费结算规则</h2>
+              <div class="switch-row">
+                <div><strong>抖音（Douyin）</strong><div class="help-text">时间筛选锁定不限</div></div>
+                <div style="display:flex;align-items:center;gap:8px;"><input class="input tabular" style="width:90px;height:34px;" type="number" min="1" value="10" /><span class="help-text">积分/页</span></div>
+              </div>
+              <div class="switch-row">
+                <div><strong>小红书（Xiaohongshu）</strong><div class="help-text">支持 0/1/7/180 天</div></div>
+                <div style="display:flex;align-items:center;gap:8px;"><input class="input tabular" style="width:90px;height:34px;" type="number" min="1" value="10" /><span class="help-text">积分/页</span></div>
+              </div>
+              <div class="switch-row">
+                <div><strong>TikTok（国际版）</strong><div class="help-text">支持视频与图文笔记</div></div>
+                <div style="display:flex;align-items:center;gap:8px;"><input class="input tabular" style="width:90px;height:34px;" type="number" min="1" value="12" /><span class="help-text">积分/页</span></div>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--muted);">
+                结算准则：提交按 <code>max_pages × 单页积分</code> 预冻结，结束按实际成功发起的 TikHub 页数结算（含过滤后为 0 条的情况），未拉取页数即时退回。
+              </div>
+            </div>
+            <div class="card-footer-stick">
+              <span class="help-text">采集封面与素材自动转存至当前激活对象存储</span>
+              <span class="badge badge-success">防超额熔断：≤ 30 页</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+          <h2 style="margin:0;font-size:16px;font-weight:700;">爆款热度评分模型权重（0–100 饱和分）</h2>
+          <div class="grid-4">
+            <div class="field"><span class="field-label">点赞权重 (likes)</span><input id="wLikes" class="input tabular" type="number" step="0.1" value="1.0" oninput="updateViralPreview()" /></div>
+            <div class="field"><span class="field-label">评论权重 (comments)</span><input id="wComments" class="input tabular" type="number" step="0.1" value="2.0" oninput="updateViralPreview()" /></div>
+            <div class="field"><span class="field-label">收藏权重 (saves)</span><input id="wSaves" class="input tabular" type="number" step="0.1" value="2.5" oninput="updateViralPreview()" /></div>
+            <div class="field"><span class="field-label">分享权重 (shares)</span><input id="wShares" class="input tabular" type="number" step="0.1" value="2.0" oninput="updateViralPreview()" /></div>
+          </div>
+          <div class="help-text" id="viralScorePreviewBox">样本测试（赞 30,000 / 评 1,200 / 藏 10,000 / 转 3,500）：综合热度分 <strong class="tabular">92.4</strong> / 100</div>
+        </div>
+      </section>
+
+      <section id="tab-storage" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">统一媒体存储引擎（OSS / TOS / COS）</h1>
+            <p class="page-sub">全站上传素材、采集封面图与 AI 生成产物统一转存云端对象存储；普通用户无需接触存储密钥。</p>
+          </div>
+          <button type="button" class="btn btn-accent" onclick="saveStorageSettings()">保存并切换主存储引擎</button>
+        </div>
+
+        <div class="grid-3">
+          <button type="button" class="engine-card selected" id="engCard-oss" onclick="selectStorageEngine('oss')">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px;">
+              <strong style="font-size:16px;">阿里云 OSS</strong>
+              <span class="badge badge-accent" id="engBadge-oss">当前激活</span>
+            </div>
+            <span class="help-text">使用官方 <code>aliyun-oss-go-sdk</code>，支持华东/华北地域及签名直传直链下载。</span>
+          </button>
+
+          <button type="button" class="engine-card" id="engCard-tos" onclick="selectStorageEngine('tos')">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px;">
+              <strong style="font-size:16px;">火山引擎 TOS</strong>
+              <span class="badge" id="engBadge-tos">备选</span>
+            </div>
+            <span class="help-text">使用 <code>ve-tos-golang-sdk</code>，与方舟大模型内网同区传输更高速。</span>
+          </button>
+
+          <button type="button" class="engine-card" id="engCard-cos" onclick="selectStorageEngine('cos')">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px;">
+              <strong style="font-size:16px;">腾讯云 COS</strong>
+              <span class="badge" id="engBadge-cos">备选</span>
+            </div>
+            <span class="help-text">使用官方 <code>cos-go-sdk-v5</code>，支持 COS 浏览器 CORS 直传与 CDN 加速域名。</span>
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="aligned-card">
+            <div class="card-body-flex" id="storageFormFields"></div>
+            <div class="card-footer-stick">
+              <button type="button" class="btn btn-outline btn-sm" onclick="showToast('预签名 PUT 上传 + GET 签名读取校验通过！','success')">测试直传与签名</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="saveStorageSettings()">保存存储配置</button>
+            </div>
+          </div>
+
+          <div class="aligned-card">
+            <div class="card-body-flex">
+              <h2 style="margin:0;font-size:16px;font-weight:700;">CORS 跨域清单与对象存储联动</h2>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12.5px;display:flex;flex-direction:column;gap:6px;">
+                <div><strong>Bucket 必须放行以下浏览器跨域规则：</strong></div>
+                <div>· 允许来源：<code>https://app.sparkstudio.cn</code>（或前端域名）</div>
+                <div>· 允许方法：<code>PUT</code>、<code>GET</code>、<code>HEAD</code></div>
+                <div>· 允许头：<code>Content-Type</code>、<code>Authorization</code>、<code>*</code></div>
+              </div>
+              <div class="switch-row" style="margin-top:6px;">
+                <div><strong>已托管云端对象总量</strong><div class="help-text tabular">18,420 个文件 · 46.8 GB</div></div>
+                <span class="badge badge-success">自动巡检正常</span>
+              </div>
+              <div class="switch-row">
+                <div><strong>对象存储删除联动</strong><div class="help-text">删除资产时同步清理对象；本地临时文件由运维计划任务巡检</div></div>
+                <span class="badge tabular">即时</span>
+              </div>
+            </div>
+            <div class="card-footer-stick">
+              <span class="help-text">上次 GC：今天 04:00（释放 312 MB）</span>
+              <button type="button" class="btn btn-outline btn-sm" onclick="showToast('已清理 14 个超时未提交上传与过期软删对象（释放 128 MB）','success')">立即运行 GC</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-jobs" class="view-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">全站任务与积分退费监控</h1>
+            <p class="page-sub">审计全站用户异步队列运行态；遇到三方上游卡死任务支持强制取消并原路全额退还冻结积分。</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="adminJobStatusFilter" class="select" style="width:150px;height:36px;" onchange="renderAdminJobs()">
+              <option value="all">全部状态</option>
+              <option value="running">运行中</option>
+              <option value="waiting_for_user">待用户确认</option>
+              <option value="succeeded">已成功</option>
+              <option value="failed">已失败</option>
+              <option value="cancelled">已取消退费</option>
+            </select>
+          </div>
+        </div>
+        <div class="card"><div class="table-wrap" id="adminJobsTableWrap"></div></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="adminModal" class="modal-backdrop" onclick="if(event.target===this)closeAdminModal()" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+    <div class="modal-box" id="adminModalBox">
+      <div class="modal-head">
+        <h3 id="adminModalTitle">管理弹窗</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeAdminModal()">关闭</button>
+      </div>
+      <div class="modal-body" id="adminModalBody"></div>
+      <div class="modal-foot" id="adminModalFoot"></div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script>
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function showToast(msg, type = 'default') {
+      const stack = document.getElementById('toastStack');
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.textContent = msg;
+      stack.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function copyText(val, message) {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(val).catch(() => {});
+      showToast(message || '已复制', 'success');
+    }
+
+    const adminState = {
+      activeTab: 'overview',
+      showChartTable: false,
+      trendData: [
+        { day: '11-19', rechargeYuan: 1280, consumedCredits: 9400 },
+        { day: '11-20', rechargeYuan: 1840, consumedCredits: 12300 },
+        { day: '11-21', rechargeYuan: 1520, consumedCredits: 11100 },
+        { day: '11-22', rechargeYuan: 2390, consumedCredits: 16400 },
+        { day: '11-23', rechargeYuan: 2150, consumedCredits: 15800 },
+        { day: '11-24', rechargeYuan: 2980, consumedCredits: 21200 },
+        { day: '11-25', rechargeYuan: 3420, consumedCredits: 24600 }
+      ],
+      policy: { openRegister: true, smsEnabled: false, bonusCredits: 100 },
+      users: [
+        { id: 'u-1', phone: '13800138001', nickname: '系统管理员', role: 'admin', status: 'active', credits: 99999, tokenVersion: 1, createdAt: '2026-11-01' },
+        { id: 'u-2', phone: '13812349021', nickname: '陈小星', role: 'user', status: 'active', credits: 1280, tokenVersion: 2, createdAt: '2026-11-15' },
+        { id: 'u-3', phone: '13966778820', nickname: '林夕选品组', role: 'user', status: 'active', credits: 460, tokenVersion: 1, createdAt: '2026-11-20' },
+        { id: 'u-4', phone: '13799001122', nickname: '违规测试号', role: 'user', status: 'disabled', credits: 0, tokenVersion: 4, createdAt: '2026-11-22' }
+      ],
+      packages: [
+        { id: 'pkg-1', name: '轻量体验包', badge: '新手首选', desc: '适合体验 TikHub 采集与单张 AI 生图创作', priceCents: 1900, credits: 200, bonus: 20, sort: 1, enabled: true },
+        { id: 'pkg-2', name: '创作者标准包', badge: '最受欢迎', desc: '覆盖约 60 次采集翻页或 40 次视频/套图生成', priceCents: 4900, credits: 600, bonus: 100, sort: 2, enabled: true },
+        { id: 'pkg-3', name: '爆款团队包', badge: '高性价比', desc: '高频视频复刻、POD 服装套图与自动化计划首选', priceCents: 9900, credits: 1400, bonus: 300, sort: 3, enabled: true },
+        { id: 'pkg-4', name: '旗舰创作包', badge: '赠送最多', desc: '全平台大模型高频调用与大批量流水线专属', priceCents: 29900, credits: 4500, bonus: 1200, sort: 4, enabled: true }
+      ],
+      orders: [
+        { orderNo: 'ORD20261125164022', userPhone: '13966778820', packageName: '创作者标准包', amountCents: 4900, credits: 700, channel: 'wechat', status: 'pending', createdAt: '16:40' },
+        { orderNo: 'ORD20261125104208', userPhone: '13812349021', packageName: '爆款团队包', amountCents: 9900, credits: 1700, channel: 'alipay', status: 'paid', createdAt: '昨天 18:10' },
+        { orderNo: 'ORD20261123162011', userPhone: '13812349021', packageName: '创作者标准包', amountCents: 4900, credits: 700, channel: 'wechat', status: 'paid', createdAt: '11-22 11:34' }
+      ],
+      providers: [
+        { id: 'p-1', protocol: 'ark', displayName: '火山方舟主节点', baseUrl: 'https://ark.cn-beijing.volces.com/api/v3', hasKey: true, hasSecret: false, enabled: true, sort: 1, models: [{ id: 'seedream-3.0', cap: 'image' }, { id: 'seedance-2.5', cap: 'video' }, { id: 'doubao-1.5-vision-pro', cap: 'understanding' }] },
+        { id: 'p-2', protocol: 'openai', displayName: 'OpenAI 官方企业通道', baseUrl: 'https://api.openai.com/v1', hasKey: true, hasSecret: false, enabled: true, sort: 2, models: [{ id: 'gpt-image-1', cap: 'image' }, { id: 'gpt-4.1', cap: 'understanding' }] },
+        { id: 'p-3', protocol: 'google', displayName: 'Google Nano Banana', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', hasKey: true, hasSecret: false, enabled: true, sort: 3, models: [{ id: 'nano-banana-pro', cap: 'image' }, { id: 'gemini-2.5-pro', cap: 'understanding' }] },
+        { id: 'p-4', protocol: 'kling', displayName: '可灵官方视频生成', baseUrl: 'https://api.klingai.com', hasKey: true, hasSecret: true, enabled: true, sort: 4, models: [{ id: 'kling-v2', cap: 'video' }] },
+        { id: 'p-5', protocol: 'deepseek', displayName: 'DeepSeek 主集群', baseUrl: 'https://api.deepseek.com/v1', hasKey: true, hasSecret: false, enabled: true, sort: 5, models: [{ id: 'deepseek-v3', cap: 'understanding' }] },
+        { id: 'p-6', protocol: 'midjourney', displayName: 'Midjourney 兼容网关', baseUrl: 'https://mj-proxy.example.com/v1', hasKey: true, hasSecret: false, enabled: true, sort: 6, models: [{ id: 'mj-v6.1', cap: 'image' }] },
+        { id: 'p-7', protocol: 'minimax', displayName: 'MiniMax 海螺平台', baseUrl: 'https://api.minimax.chat/v1', hasKey: true, hasSecret: false, enabled: true, sort: 7, models: [{ id: 'hailuo-v2', cap: 'video' }] },
+        { id: 'p-8', protocol: 'qwen', displayName: '通义万相 / 阿里百炼', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', hasKey: true, hasSecret: false, enabled: true, sort: 8, models: [{ id: 'wan-2.1', cap: 'video' }] }
+      ],
+      pricingRules: [
+        { id: 'pr-1', provider: 'ark', modelId: 'seedream-3.0', cap: 'image', mode: 'per_item', base: 0, unit: 12, mult: '2k: 1.5x', enabled: true },
+        { id: 'pr-2', provider: 'openai', modelId: 'gpt-image-1', cap: 'image', mode: 'per_item', base: 0, unit: 16, mult: 'high: 1.5x', enabled: true },
+        { id: 'pr-3', provider: 'ark', modelId: 'seedance-2.5', cap: 'video', mode: 'per_second', base: 0, unit: 8, mult: '1080p: 1.5x', enabled: true },
+        { id: 'pr-4', provider: 'kling', modelId: 'kling-v2', cap: 'video', mode: 'per_second', base: 0, unit: 6, mult: 'pro: 1.5x', enabled: true },
+        { id: 'pr-5', provider: 'deepseek', modelId: 'deepseek-v3', cap: 'understanding', mode: 'per_call', base: 4, unit: 0, mult: '-', enabled: true }
+      ],
+      activeStorageEngine: 'oss',
+      storageConfigs: {
+        oss: { endpoint: 'oss-cn-hangzhou.aliyuncs.com', region: 'cn-hangzhou', bucket: 'sparkstudio-media-prod', cdn: 'https://cdn.sparkstudio.cn', ttl: 3600 },
+        tos: { endpoint: 'tos-cn-beijing.volces.com', region: 'cn-beijing', bucket: 'sparkstudio-tos', cdn: '', ttl: 3600 },
+        cos: { endpoint: 'cos.ap-shanghai.myqcloud.com', region: 'ap-shanghai', bucket: 'sparkstudio-13098123', cdn: '', ttl: 3600 }
+      },
+      jobs: [
+        { id: 'job-901', userPhone: '13812349021', title: 'POD 服装套图生成（6 张）', type: 'creation', source: '平台接口 (seedream-3.0)', frozen: 72, settled: 0, status: 'running', time: '16:50' },
+        { id: 'job-900', userPhone: '13966778820', title: 'TikHub 抖音采集 5 页', type: 'collect', source: 'TikHub 采集', frozen: 50, settled: 0, status: 'running', time: '16:48' },
+        { id: 'job-898', userPhone: '13812349021', title: '15s 产品图生视频（待确认品类）', type: 'creation', source: '平台接口 (seedance-2.5)', frozen: 120, settled: 0, status: 'waiting_for_user', time: '16:12' },
+        { id: 'job-895', userPhone: '13812349021', title: '冷萃咖啡 15s 视频复刻', type: 'clone', source: '用户自有接口 (0积分)', frozen: 0, settled: 0, status: 'succeeded', time: '14:40' },
+        { id: 'job-890', userPhone: '13966778820', title: 'Kling V2 视频生成超时', type: 'creation', source: '平台接口 (kling-v2)', frozen: 0, settled: 0, status: 'failed', time: '11:20' }
+      ]
+    };
+
+    function switchAdminTab(tab) {
+      adminState.activeTab = tab;
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.querySelectorAll('.side-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tab));
+      renderActiveAdminTab();
+    }
+
+    function renderActiveAdminTab() {
+      if (adminState.activeTab === 'overview') renderOverview();
+      else if (adminState.activeTab === 'users') renderUsersTable();
+      else if (adminState.activeTab === 'credits') { renderPackagesTable(); renderAdminOrders(); }
+      else if (adminState.activeTab === 'providers') { renderGlobalDefaults(); renderProvidersGrid(); renderPricingTable(); }
+      else if (adminState.activeTab === 'storage') renderStorageForm();
+      else if (adminState.activeTab === 'jobs') renderAdminJobs();
+    }
+
+    function renderOverview() {
+      const running = adminState.jobs.filter(j => j.status === 'running' || j.status === 'waiting_for_user').length;
+      const paidTodayYuan = adminState.orders.filter(o => o.status === 'paid').reduce((s, o) => s + o.amountCents, 0) / 100;
+      const kpis = [
+        { label: '累计已核销充值实收', value: '¥' + (3420 + paidTodayYuan).toLocaleString(), sub: '支付宝 / 微信在线直充通道', badge: '+18.4%', cls: 'badge-success' },
+        { label: '今日全站积分消耗', value: '24,600', sub: '采集 32% · 生图 41% · 视频 27%', badge: '共用积分池', cls: 'badge-accent' },
+        { label: '全站注册用户总数', value: String(adminState.users.length), sub: '自主注册无需审核直接激活', badge: '活跃 3', cls: 'badge' },
+        { label: '运行中 / 待确认任务', value: String(running), sub: '支持异常强制取消全额退分', badge: 'Worker 正常', cls: 'badge-dark' }
+      ];
+      document.getElementById('adminOverviewKpis').innerHTML = kpis.map(k => `
+        <article class="aligned-card">
+          <div class="card-body-flex">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span class="help-text">${k.label}</span>
+              <span class="badge ${k.cls}">${k.badge}</span>
+            </div>
+            <div class="tabular" style="font-size:28px;font-weight:800;letter-spacing:-0.02em;margin-top:4px;">${k.value}</div>
+          </div>
+          <div class="card-footer-stick"><span class="help-text">${k.sub}</span></div>
+        </article>
+      `).join('');
+
+      const wrap = document.getElementById('adminTrendChartWrap');
+      if (adminState.showChartTable) {
+        wrap.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>日期</th><th>充值实收 (¥)</th><th>消耗积分</th></tr></thead>
+              <tbody>${adminState.trendData.map(d => `<tr><td class="tabular">${d.day}</td><td class="tabular">¥${d.rechargeYuan}</td><td class="tabular">${d.consumedCredits.toLocaleString()}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>`;
+      } else {
+        const maxVal = Math.max(...adminState.trendData.map(d => d.consumedCredits));
+        const bars = adminState.trendData.map((d, idx) => {
+          const x = 32 + idx * 72;
+          const h1 = Math.round((d.consumedCredits / maxVal) * 120);
+          const h2 = Math.round((d.rechargeYuan / 3800) * 120);
+          return `
+            <rect x="${x}" y="${145 - h1}" width="20" height="${h1}" rx="4" fill="#18181B" />
+            <rect x="${x + 24}" y="${145 - h2}" width="20" height="${h2}" rx="4" fill="#DB2777" />
+            <text x="${x + 22}" y="166" text-anchor="middle" font-size="11" fill="#52525B" font-family="Inter,sans-serif">${d.day}</text>
+          `;
+        }).join('');
+        wrap.innerHTML = `
+          <svg viewBox="0 0 540 180" style="width:100%;max-height:240px;height:auto;" aria-label="近7日充值与消耗柱状图">
+            <line x1="20" y1="145" x2="520" y2="145" stroke="#E4E4E7" stroke-width="1" />
+            ${bars}
+          </svg>
+          <div style="display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--muted);margin-top:6px;">
+            <span style="display:inline-flex;align-items:center;gap:6px;"><i style="width:10px;height:10px;border-radius:2px;background:#18181B;display:inline-block;"></i> 积分消耗</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><i style="width:10px;height:10px;border-radius:2px;background:#DB2777;display:inline-block;"></i> 充值实收 (¥)</span>
+          </div>`;
+      }
+      const engNames = { oss: '阿里云 OSS', tos: '火山引擎 TOS', cos: '腾讯云 COS' };
+      document.getElementById('healthStorageSummary').textContent = `${engNames[adminState.activeStorageEngine]}（${adminState.storageConfigs[adminState.activeStorageEngine].bucket}）`;
+    }
+    function toggleChartDataTable() { adminState.showChartTable = !adminState.showChartTable; renderOverview(); }
+
+    function togglePolicyFlag(key) {
+      adminState.policy[key] = !adminState.policy[key];
+      document.getElementById(key === 'openRegister' ? 'toggleOpenRegister' : 'toggleSmsEnabled').classList.toggle('on', adminState.policy[key]);
+      showToast(`${key === 'openRegister' ? '开放自主注册' : '短信验证码'}已${adminState.policy[key] ? '开启' : '关闭'}`);
+    }
+    function saveAuthPolicy() {
+      adminState.policy.bonusCredits = Number(document.getElementById('policyBonusCredits').value) || 0;
+      showToast('注册策略与找回密码指引文案已保存', 'success');
+    }
+    function renderUsersTable() {
+      const q = (document.getElementById('userSearchInput').value || '').trim().toLowerCase();
+      const list = adminState.users.filter(u => !q || u.phone.includes(q) || u.nickname.toLowerCase().includes(q));
+      document.getElementById('adminUsersTableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>手机号</th><th>昵称</th><th>角色</th><th>可用积分</th><th>会话版本</th><th>状态</th><th>操作 (CRUD)</th></tr></thead>
+          <tbody>
+            ${list.map(u => `
+              <tr>
+                <td class="tabular"><strong>${escapeHtml(u.phone)}</strong></td>
+                <td>${escapeHtml(u.nickname)}</td>
+                <td><span class="badge ${u.role === 'admin' ? 'badge-dark' : ''}">${u.role}</span></td>
+                <td class="tabular"><strong>${u.credits.toLocaleString()}</strong></td>
+                <td class="tabular"><code>v${u.tokenVersion}</code></td>
+                <td>${u.status === 'active' ? '<span class="badge badge-success">正常</span>' : '<span class="badge badge-danger">已禁用</span>'}</td>
+                <td>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openUserModal('${u.id}')">编辑</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openAdjustCreditsModal('${u.id}')">调账</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openResetPwdModal('${u.id}')">重置密码</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.id}')">${u.status === 'active' ? '禁用' : '启用'}</button>
+                    ${u.role === 'admin' ? '' : `<button type="button" class="btn btn-danger-outline btn-sm" onclick="deleteUser('${u.id}')">删除</button>`}
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+    function openUserModal(id) {
+      const u = id ? adminState.users.find(x => x.id === id) : null;
+      openAdminModal(u ? '编辑用户资料' : '后台新增用户', `
+        <div class="field"><span class="field-label">手机号</span><input id="uFormPhone" class="input tabular" value="${escapeHtml(u ? u.phone : '')}" placeholder="11 位手机号" /></div>
+        <div class="field"><span class="field-label">昵称</span><input id="uFormNick" class="input" value="${escapeHtml(u ? u.nickname : '')}" placeholder="用户昵称" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">角色</span><select id="uFormRole" class="select"><option value="user" ${u?.role !== 'admin' ? 'selected' : ''}>普通用户 (user)</option><option value="admin" ${u?.role === 'admin' ? 'selected' : ''}>管理员 (admin)</option></select></div>
+          ${!u ? `<div class="field"><span class="field-label">初始积分</span><input id="uFormCredits" class="input tabular" type="number" value="${adminState.policy.bonusCredits}" /></div>` : `<div class="field"><span class="field-label">当前状态</span><input class="input" value="${u.status === 'active' ? '正常' : '已禁用'}" disabled /></div>`}
+        </div>
+      `, `
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="saveUser('${id || ''}')">保存用户</button>
+      `);
+    }
+    function saveUser(id) {
+      const phone = document.getElementById('uFormPhone').value.trim();
+      const nickname = document.getElementById('uFormNick').value.trim();
+      const role = document.getElementById('uFormRole').value;
+      if (!phone || !nickname) return showToast('请填写手机号和昵称', 'error');
+      if (id) { const u = adminState.users.find(x => x.id === id); if (u) { u.phone = phone; u.nickname = nickname; u.role = role; } }
+      else {
+        const credits = Number(document.getElementById('uFormCredits').value) || 0;
+        adminState.users.push({ id: 'u-' + Date.now(), phone, nickname, role, status: 'active', credits, tokenVersion: 1, createdAt: '今天' });
+      }
+      closeAdminModal();
+      renderUsersTable();
+      showToast('用户信息已保存', 'success');
+    }
+    function openAdjustCreditsModal(id) {
+      const u = adminState.users.find(x => x.id === id);
+      if (!u) return;
+      openAdminModal(`人工积分调账 · ${u.nickname}`, `
+        <div class="help-text">当前余额：<strong class="tabular">${u.credits}</strong> 积分（调账将写入 <code>admin_adjust</code> 不可篡改流水）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">调账方向</span><select id="adjDir" class="select"><option value="add">增加积分 (+)</option><option value="sub">扣减积分 (-)</option></select></div>
+          <div class="field"><span class="field-label">变动积分数量</span><input id="adjAmt" class="input tabular" type="number" min="1" value="200" /></div>
+        </div>
+        <div class="field"><span class="field-label">操作备注</span><input id="adjReason" class="input" value="客服补偿 / 线下转账核销" /></div>
+      `, `
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="confirmAdjustCredits('${u.id}')">确认调账</button>
+      `);
+    }
+    function confirmAdjustCredits(id) {
+      const u = adminState.users.find(x => x.id === id);
+      const dir = document.getElementById('adjDir').value;
+      const amt = Number(document.getElementById('adjAmt').value) || 0;
+      if (!u || amt <= 0) return;
+      u.credits = dir === 'add' ? u.credits + amt : Math.max(0, u.credits - amt);
+      closeAdminModal();
+      renderUsersTable();
+      showToast(`调账成功！${u.nickname} 最新余额 ${u.credits} 积分`, 'success');
+    }
+    function openResetPwdModal(id) {
+      const u = adminState.users.find(x => x.id === id);
+      if (!u) return;
+      openAdminModal(`重置密码 · ${u.phone}`, `
+        <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--warning);">
+          安全联动：重置密码后系统将立即把该用户的 <code>token_version</code> 从 v${u.tokenVersion} 递增至 v${u.tokenVersion + 1}，旧 JWT 随之下线。
+        </div>
+        <div class="field"><span class="field-label">设置新登录密码</span><input id="resetNewPwdInput" class="input" type="text" value="Spark#${Math.floor(1000 + Math.random() * 9000)}" /></div>
+      `, `
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="confirmResetPwd('${u.id}')">确认重置并踢出旧会话</button>
+      `);
+    }
+    function confirmResetPwd(id) {
+      const u = adminState.users.find(x => x.id === id);
+      if (u) u.tokenVersion += 1;
+      closeAdminModal();
+      renderUsersTable();
+      showToast('密码已重置，token_version 已递增并使旧会话立即失效', 'success');
+    }
+    function toggleUserStatus(id) {
+      const u = adminState.users.find(x => x.id === id);
+      if (!u) return;
+      u.status = u.status === 'active' ? 'disabled' : 'active';
+      u.tokenVersion += 1;
+      renderUsersTable();
+      showToast(`已${u.status === 'active' ? '启用' : '禁用'}用户并刷新会话版本`);
+    }
+    function deleteUser(id) { adminState.users = adminState.users.filter(u => u.id !== id); renderUsersTable(); showToast('已删除该用户'); }
+
+    function renderPackagesTable() {
+      const sorted = [...adminState.packages].sort((a, b) => a.sort - b.sort);
+      document.getElementById('adminPackagesTableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>排序</th><th>套餐名称</th><th>角标</th><th>售价</th><th>基础 + 赠送积分</th><th>状态</th><th>操作 (CRUD)</th></tr></thead>
+          <tbody>
+            ${sorted.map(p => `
+              <tr>
+                <td class="tabular">${p.sort}</td>
+                <td><strong>${escapeHtml(p.name)}</strong><div class="help-text">${escapeHtml(p.desc)}</div></td>
+                <td><span class="badge badge-accent">${escapeHtml(p.badge || '无')}</span></td>
+                <td class="tabular"><strong>¥${(p.priceCents / 100).toFixed(2)}</strong></td>
+                <td class="tabular">${p.credits} + <strong style="color:var(--accent);">${p.bonus}</strong> = ${p.credits + p.bonus}</td>
+                <td>${p.enabled ? '<span class="badge badge-success">已上架</span>' : '<span class="badge">已下架</span>'}</td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openPackageModal('${p.id}')">编辑</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="togglePackageEnabled('${p.id}')">${p.enabled ? '下架' : '上架'}</button>
+                    <button type="button" class="btn btn-danger-outline btn-sm" onclick="deletePackage('${p.id}')">删除</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+    function openPackageModal(id) {
+      const p = id ? adminState.packages.find(x => x.id === id) : null;
+      openAdminModal(p ? '编辑积分套餐' : '新建积分套餐', `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">套餐名称</span><input id="pkgName" class="input" value="${escapeHtml(p ? p.name : '')}" placeholder="如：月度畅享包" /></div>
+          <div class="field"><span class="field-label">推荐角标（可选）</span><input id="pkgBadge" class="input" value="${escapeHtml(p ? p.badge : '')}" placeholder="如：限时特惠" /></div>
+        </div>
+        <div class="field"><span class="field-label">套餐描述</span><input id="pkgDesc" class="input" value="${escapeHtml(p ? p.desc : '')}" placeholder="简述适合场景" /></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          <div class="field"><span class="field-label">售价 (元)</span><input id="pkgPrice" class="input tabular" type="number" step="0.01" value="${p ? (p.priceCents / 100).toFixed(2) : '29.00'}" /></div>
+          <div class="field"><span class="field-label">基础积分</span><input id="pkgCredits" class="input tabular" type="number" value="${p ? p.credits : 350}" /></div>
+          <div class="field"><span class="field-label">赠送积分</span><input id="pkgBonus" class="input tabular" type="number" value="${p ? p.bonus : 50}" /></div>
+          <div class="field"><span class="field-label">排序权重</span><input id="pkgSort" class="input tabular" type="number" value="${p ? p.sort : adminState.packages.length + 1}" /></div>
+        </div>
+      `, `
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="savePackage('${id || ''}')">保存套餐</button>
+      `);
+    }
+    function savePackage(id) {
+      const name = document.getElementById('pkgName').value.trim();
+      const badge = document.getElementById('pkgBadge').value.trim();
+      const desc = document.getElementById('pkgDesc').value.trim();
+      const priceCents = Math.round((Number(document.getElementById('pkgPrice').value) || 0) * 100);
+      const credits = Number(document.getElementById('pkgCredits').value) || 0;
+      const bonus = Number(document.getElementById('pkgBonus').value) || 0;
+      const sort = Number(document.getElementById('pkgSort').value) || 1;
+      if (!name || priceCents <= 0 || credits <= 0) return showToast('请正确填写套餐名称、售价与基础积分', 'error');
+      if (id) { const p = adminState.packages.find(x => x.id === id); if (p) Object.assign(p, { name, badge, desc, priceCents, credits, bonus, sort }); }
+      else adminState.packages.push({ id: 'pkg-' + Date.now(), name, badge, desc, priceCents, credits, bonus, sort, enabled: true });
+      closeAdminModal();
+      renderPackagesTable();
+      showToast('积分套餐已保存', 'success');
+    }
+    function togglePackageEnabled(id) { const p = adminState.packages.find(x => x.id === id); if (p) p.enabled = !p.enabled; renderPackagesTable(); }
+    function deletePackage(id) { adminState.packages = adminState.packages.filter(p => p.id !== id); renderPackagesTable(); showToast('已删除套餐'); }
+
+    function renderAdminOrders() {
+      const filter = document.getElementById('adminOrderStatusFilter').value || 'all';
+      const list = adminState.orders.filter(o => filter === 'all' || o.status === filter);
+      document.getElementById('adminOrdersTableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>订单号</th><th>充值用户</th><th>套餐</th><th>渠道</th><th>实付金额</th><th>积分</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            ${list.map(o => `
+              <tr>
+                <td class="tabular"><code>${escapeHtml(o.orderNo)}</code></td>
+                <td class="tabular">${escapeHtml(o.userPhone)}</td>
+                <td>${escapeHtml(o.packageName)}</td>
+                <td>${o.channel === 'alipay' ? '支付宝' : '微信支付'}</td>
+                <td class="tabular">¥${(o.amountCents / 100).toFixed(2)}</td>
+                <td class="tabular">+${o.credits}</td>
+                <td>${o.status === 'paid' ? '<span class="badge badge-success">已支付</span>' : '<span class="badge badge-warning">待支付</span>'}</td>
+                <td>${o.status === 'pending' ? `<button type="button" class="btn btn-accent btn-sm" onclick="manualCompensateOrder('${o.orderNo}')">人工核销补单</button>` : `<span class="help-text">${escapeHtml(o.createdAt)}</span>`}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+    function manualCompensateOrder(orderNo) {
+      const o = adminState.orders.find(x => x.orderNo === orderNo);
+      if (!o || o.status === 'paid') return;
+      o.status = 'paid';
+      const u = adminState.users.find(x => x.phone === o.userPhone);
+      if (u) u.credits += o.credits;
+      renderAdminOrders();
+      showToast(`已核销订单 ${orderNo}，向用户补发 ${o.credits} 积分`, 'success');
+    }
+
+    function renderGlobalDefaults() {
+      const undModels = adminState.providers.filter(p => p.enabled).flatMap(p => p.models.filter(m => m.cap === 'understanding').map(m => `${p.protocol} / ${m.id}`));
+      const imgModels = adminState.providers.filter(p => p.enabled).flatMap(p => p.models.filter(m => m.cap === 'image').map(m => `${p.protocol} / ${m.id}`));
+      document.getElementById('globalDefaultUnderstandingSel').innerHTML = undModels.map(x => `<option>${escapeHtml(x)}</option>`).join('');
+      document.getElementById('globalDefaultImageSel').innerHTML = imgModels.map(x => `<option>${escapeHtml(x)}</option>`).join('');
+    }
+    function renderProvidersGrid() {
+      document.getElementById('adminProvidersGrid').innerHTML = adminState.providers.map(p => `
+        <article class="aligned-card">
+          <div class="card-body-flex">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <strong style="font-size:15.5px;">${escapeHtml(p.displayName)}</strong>
+              <span class="badge ${p.enabled ? 'badge-success' : ''}">${p.enabled ? '已启用' : '已停用'}</span>
+            </div>
+            <div class="help-text">协议：<code>${escapeHtml(p.protocol)}</code> · 密钥：${p.hasKey ? 'AES-GCM 已配置' : '未配置'}${p.protocol === 'kling' ? ' + Secret' : ''}</div>
+            <div class="help-text" style="word-break:break-all;">${escapeHtml(p.baseUrl)}</div>
+            <div class="chip-row" style="margin-top:4px;">${p.models.map(m => `<span class="badge">${escapeHtml(m.id)} · ${m.cap === 'image' ? '生图' : m.cap === 'video' ? '视频' : '理解'}</span>`).join('')}</div>
+          </div>
+          <div class="card-footer-stick">
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="toggleAdminProvider('${p.id}')">${p.enabled ? '停用' : '启用'}</button>
+              <button type="button" class="btn btn-danger-outline btn-sm" onclick="deleteAdminProvider('${p.id}')">删除</button>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openAdminProviderModal('${p.id}')">编辑 / 拉取模型</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    let tempAdminProviderModels = [];
+    function openAdminProviderModal(id) {
+      const p = id ? adminState.providers.find(x => x.id === id) : null;
+      tempAdminProviderModels = p ? JSON.parse(JSON.stringify(p.models)) : [{ id: 'custom-model-v1', cap: 'image' }];
+      openAdminModal(p ? '编辑平台大模型供应商' : '新增平台大模型供应商', `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field">
+            <span class="field-label">供应商协议类型（兼容 10 类）</span>
+            <select id="apProtocol" class="select" onchange="toggleAdminKlingSecret()">
+              ${['ark', 'openai', 'google', 'deepseek', 'glm', 'midjourney', 'minimax', 'kling', 'qwen', 'custom'].map(pr =>
+                `<option value="${pr}" ${p?.protocol === pr ? 'selected' : ''}>${pr}</option>`
+              ).join('')}
+            </select>
+          </div>
+          <div class="field"><span class="field-label">自定义显示名称</span><input id="apName" class="input" value="${escapeHtml(p ? p.displayName : '')}" placeholder="如：备用 OpenAI 节点 #2" /></div>
+        </div>
+        <div class="field">
+          <span class="field-label">API Base URL</span>
+          <input id="apBaseUrl" class="input" type="url" value="${escapeHtml(p ? p.baseUrl : 'https://api.example.com/v1')}" />
+          <span class="help-text">qwen 填服务根地址（不带 compatible-mode/v1）；midjourney 需兼容 /images/generations 与 /images/edits。</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">API Key / Access Key（不回显）</span><input id="apKey" class="input" type="password" placeholder="${p?.hasKey ? '********（留空不改）' : '输入访问密钥'}" /></div>
+          <div class="field" id="apSecretWrap" style="display:${p?.protocol === 'kling' ? 'flex' : 'none'};"><span class="field-label">Secret Key（可灵 AK/SK 签名用）</span><input id="apSecret" class="input" type="password" placeholder="${p?.hasSecret ? '********' : '输入 Secret Key'}" /></div>
+        </div>
+        <div class="field">
+          <span class="field-label">
+            <span>开放给前端的模型目录与能力打标</span>
+            <div style="display:flex;gap:10px;">
+              <button type="button" style="color:var(--accent);font-size:12px;font-weight:600;" onclick="simulateAdminFetchModels()">保存并拉取远端模型</button>
+              <button type="button" style="color:var(--primary);font-size:12px;font-weight:600;" onclick="tempAdminProviderModels.push({id:'new-model',cap:'image'});renderTempAdminModels();">+ 手动加一行</button>
+            </div>
+          </span>
+          <div id="apModelsWrap" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      `, `
+        ${p?.hasKey ? `<button type="button" class="btn btn-danger-outline" onclick="showToast('已清除该供应商服务端加密密钥');closeAdminModal()">移除密钥</button>` : ''}
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="saveAdminProvider('${id || ''}')">保存供应商</button>
+      `, true);
+      renderTempAdminModels();
+    }
+    function toggleAdminKlingSecret() { document.getElementById('apSecretWrap').style.display = document.getElementById('apProtocol').value === 'kling' ? 'flex' : 'none'; }
+    function renderTempAdminModels() {
+      const el = document.getElementById('apModelsWrap');
+      if (!el) return;
+      el.innerHTML = tempAdminProviderModels.map((m, i) => `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="input" style="height:34px;flex:1;" value="${escapeHtml(m.id)}" onchange="tempAdminProviderModels[${i}].id=this.value" />
+          <select class="select" style="height:34px;width:135px;" onchange="tempAdminProviderModels[${i}].cap=this.value">
+            <option value="image" ${m.cap === 'image' ? 'selected' : ''}>生图 (image)</option>
+            <option value="video" ${m.cap === 'video' ? 'selected' : ''}>生视频 (video)</option>
+            <option value="understanding" ${m.cap === 'understanding' ? 'selected' : ''}>理解 (understanding)</option>
+          </select>
+          <button type="button" class="btn btn-danger-outline btn-sm" onclick="tempAdminProviderModels.splice(${i},1);renderTempAdminModels();">删</button>
+        </div>
+      `).join('');
+    }
+    function simulateAdminFetchModels() {
+      const proto = document.getElementById('apProtocol').value;
+      const presets = {
+        ark: [{ id: 'seedream-3.0', cap: 'image' }, { id: 'seedance-2.5', cap: 'video' }, { id: 'doubao-1.5-vision-pro', cap: 'understanding' }],
+        qwen: [{ id: 'wan-2.1', cap: 'video' }, { id: 'qwen-vl-max', cap: 'understanding' }],
+        minimax: [{ id: 'hailuo-v2', cap: 'video' }],
+        glm: [{ id: 'glm-4.5v', cap: 'understanding' }]
+      }[proto] || [{ id: proto + '-model-v1', cap: 'image' }, { id: proto + '-chat', cap: 'understanding' }];
+      tempAdminProviderModels = presets;
+      renderTempAdminModels();
+      showToast('已拉取并加载模型目录，请确认能力标签后保存', 'success');
+    }
+    function saveAdminProvider(id) {
+      const protocol = document.getElementById('apProtocol').value;
+      const displayName = document.getElementById('apName').value.trim();
+      const baseUrl = document.getElementById('apBaseUrl').value.trim();
+      if (!displayName || !baseUrl) return showToast('请填写显示名称与 API Base URL', 'error');
+      if (id) { const p = adminState.providers.find(x => x.id === id); if (p) Object.assign(p, { protocol, displayName, baseUrl, models: [...tempAdminProviderModels], hasKey: true, hasSecret: protocol === 'kling' }); }
+      else adminState.providers.push({ id: 'p-' + Date.now(), protocol, displayName, baseUrl, hasKey: true, hasSecret: protocol === 'kling', enabled: true, sort: adminState.providers.length + 1, models: [...tempAdminProviderModels] });
+      closeAdminModal();
+      renderGlobalDefaults();
+      renderProvidersGrid();
+      showToast('平台大模型供应商配置已生效', 'success');
+    }
+    function toggleAdminProvider(id) { const p = adminState.providers.find(x => x.id === id); if (p) p.enabled = !p.enabled; renderGlobalDefaults(); renderProvidersGrid(); }
+    function deleteAdminProvider(id) { adminState.providers = adminState.providers.filter(p => p.id !== id); renderGlobalDefaults(); renderProvidersGrid(); showToast('已删除供应商实例'); }
+
+    function renderPricingTable() {
+      const modeMap = { per_call: '按次固定', per_item: '按张计费', per_second: '按秒计费' };
+      document.getElementById('adminPricingTableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>供应商</th><th>模型 ID</th><th>能力类型</th><th>计费方式</th><th>基础/单价积分</th><th>规格系数</th><th>状态</th><th>操作 (CRUD)</th></tr></thead>
+          <tbody>
+            ${adminState.pricingRules.map(r => `
+              <tr>
+                <td><code>${escapeHtml(r.provider)}</code></td>
+                <td><strong>${escapeHtml(r.modelId)}</strong></td>
+                <td>${r.cap === 'image' ? '生图' : r.cap === 'video' ? '生视频' : '理解'}</td>
+                <td>${modeMap[r.mode] || r.mode}</td>
+                <td class="tabular"><strong>${r.base > 0 ? r.base + ' 基础 + ' : ''}${r.unit} 积分</strong></td>
+                <td class="tabular">${escapeHtml(r.mult)}</td>
+                <td>${r.enabled ? '<span class="badge badge-success">生效中</span>' : '<span class="badge">停用</span>'}</td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="openPricingRuleModal('${r.id}')">编辑</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="togglePricingRule('${r.id}')">${r.enabled ? '停用' : '启用'}</button>
+                    <button type="button" class="btn btn-danger-outline btn-sm" onclick="deletePricingRule('${r.id}')">删除</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+    function openPricingRuleModal(id) {
+      const r = id ? adminState.pricingRules.find(x => x.id === id) : null;
+      openAdminModal(r ? '编辑模型定价规则' : '新增模型定价规则', `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">供应商协议</span><input id="prProv" class="input" value="${escapeHtml(r ? r.provider : 'qwen')}" /></div>
+          <div class="field">
+            <span class="field-label">
+              <span>模型 ID</span>
+              <button type="button" style="padding:0;border:0;background:none;color:var(--accent);font-size:11.5px;font-weight:600;" onclick="simulatePricingFetchModels()">拉取模型列表</button>
+            </span>
+            <input id="prModel" class="input" value="${escapeHtml(r ? r.modelId : 'wan-2.1')}" />
+            <span class="help-text">使用已保存的供应商密钥读取；也支持手动填写模型 ID。</span>
+            <div id="prModelOptions"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field">
+            <span class="field-label">能力域</span>
+            <select id="prCap" class="select">
+              <option value="image" ${r?.cap === 'image' ? 'selected' : ''}>生图 (image)</option>
+              <option value="video" ${r?.cap === 'video' ? 'selected' : ''}>生视频 (video)</option>
+              <option value="understanding" ${r?.cap === 'understanding' ? 'selected' : ''}>理解 (understanding)</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">计费模式</span>
+            <select id="prMode" class="select">
+              <option value="per_item" ${r?.mode === 'per_item' ? 'selected' : ''}>per_item（按张）</option>
+              <option value="per_second" ${r?.mode === 'per_second' ? 'selected' : ''}>per_second（按秒）</option>
+              <option value="per_call" ${r?.mode === 'per_call' ? 'selected' : ''}>per_call（按次）</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div class="field"><span class="field-label">基础起步分</span><input id="prBase" class="input tabular" type="number" min="0" value="${r ? r.base : 0}" /></div>
+          <div class="field"><span class="field-label">单价积分</span><input id="prUnit" class="input tabular" type="number" min="0" value="${r ? r.unit : 5}" /></div>
+          <div class="field"><span class="field-label">规格系数</span><input id="prMult" class="input" value="${escapeHtml(r ? r.mult : '1080p: 1.5x')}" /></div>
+        </div>
+      `, `
+        <button type="button" class="btn btn-outline" onclick="closeAdminModal()">取消</button>
+        <button type="button" class="btn btn-accent" onclick="savePricingRule('${id || ''}')">保存定价规则</button>
+      `);
+    }
+    function simulatePricingFetchModels() {
+      const provider = document.getElementById('prProv').value.trim().toLowerCase();
+      const catalog = {
+        ark: [
+          { id: 'doubao-seedream-5-0-pro-260628', cap: 'image', mode: 'per_item', label: '生图' },
+          { id: 'doubao-seedance-2-5-260628', cap: 'video', mode: 'per_second', label: '生视频' },
+          { id: 'doubao-seed-2-0-pro-260215', cap: 'understanding', mode: 'per_call', label: '理解' }
+        ],
+        google: [
+          { id: 'imagen-4.0-generate-001', cap: 'image', mode: 'per_item', label: '生图' },
+          { id: 'gemini-2.5-pro', cap: 'understanding', mode: 'per_call', label: '理解' }
+        ],
+        openai: [
+          { id: 'gpt-image-1', cap: 'image', mode: 'per_item', label: '生图' },
+          { id: 'gpt-4.1', cap: 'understanding', mode: 'per_call', label: '理解' }
+        ],
+        qwen: [
+          { id: 'wan-2.1', cap: 'video', mode: 'per_second', label: '生视频' },
+          { id: 'qwen-vl-max', cap: 'understanding', mode: 'per_call', label: '理解' }
+        ]
+      };
+      const models = catalog[provider] || [
+        { id: provider + '-image-v1', cap: 'image', mode: 'per_item', label: '生图' },
+        { id: provider + '-chat', cap: 'understanding', mode: 'per_call', label: '理解' }
+      ];
+      document.getElementById('prModelOptions').innerHTML = `
+        <div style="margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:13px;background:var(--bg);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+            <strong style="font-size:13px;">供应商可用模型</strong>
+            <span class="help-text">已读取 ${models.length} 个，点击自动带入</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;">
+            ${models.map(m => `
+              <button type="button" style="width:100%;min-height:46px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;" onclick="applyPricingModel('${m.id}','${m.cap}','${m.mode}')">
+                <span style="min-width:0;">
+                  <strong style="display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.id)}</strong>
+                  <span class="help-text">${m.label} · ${m.mode}</span>
+                </span>
+                <span class="badge">选择</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      showToast(`已拉取 ${models.length} 个模型，点击列表即可填入`, 'success');
+    }
+    function applyPricingModel(id, cap, mode) {
+      document.getElementById('prModel').value = id;
+      document.getElementById('prCap').value = cap;
+      document.getElementById('prMode').value = mode;
+      document.getElementById('prModelOptions').innerHTML = '';
+      showToast('已选择 ' + id + '，能力与计费模式已自动带入', 'success');
+    }
+    function savePricingRule(id) {
+      const provider = document.getElementById('prProv').value.trim();
+      const modelId = document.getElementById('prModel').value.trim();
+      const cap = document.getElementById('prCap').value;
+      const mode = document.getElementById('prMode').value;
+      const base = Number(document.getElementById('prBase').value) || 0;
+      const unit = Number(document.getElementById('prUnit').value) || 0;
+      const mult = document.getElementById('prMult').value.trim() || '-';
+      if (!provider || !modelId) return showToast('请填写供应商与模型 ID', 'error');
+      if (id) { const r = adminState.pricingRules.find(x => x.id === id); if (r) Object.assign(r, { provider, modelId, cap, mode, base, unit, mult }); }
+      else adminState.pricingRules.unshift({ id: 'pr-' + Date.now(), provider, modelId, cap, mode, base, unit, mult, enabled: true });
+      closeAdminModal();
+      renderPricingTable();
+      showToast('模型积分定价已更新', 'success');
+    }
+    function togglePricingRule(id) { const r = adminState.pricingRules.find(x => x.id === id); if (r) r.enabled = !r.enabled; renderPricingTable(); }
+    function deletePricingRule(id) { adminState.pricingRules = adminState.pricingRules.filter(r => r.id !== id); renderPricingTable(); showToast('已删除定价规则'); }
+
+    function updateViralPreview() {
+      const wl = Number(document.getElementById('wLikes').value) || 0;
+      const wc = Number(document.getElementById('wComments').value) || 0;
+      const ws = Number(document.getElementById('wSaves').value) || 0;
+      const wsh = Number(document.getElementById('wShares').value) || 0;
+      const raw = wl * Math.log(30001) + wc * Math.log(1201) + ws * Math.log(10001) + wsh * Math.log(3501);
+      const norm = Math.min(99.9, Math.max(10, (100 * (1 - Math.exp(-raw / 26))))).toFixed(1);
+      document.getElementById('viralScorePreviewBox').innerHTML = `样本测试（赞 30,000 / 评 1,200 / 藏 10,000 / 转 3,500）：综合热度分 <strong class="tabular">${norm}</strong> / 100`;
+    }
+
+    function selectStorageEngine(eng) {
+      adminState.activeStorageEngine = eng;
+      ['oss', 'tos', 'cos'].forEach(k => {
+        document.getElementById('engCard-' + k).classList.toggle('selected', k === eng);
+        const b = document.getElementById('engBadge-' + k);
+        b.className = 'badge' + (k === eng ? ' badge-accent' : '');
+        b.textContent = k === eng ? '当前激活' : '备选';
+      });
+      renderStorageForm();
+    }
+    function renderStorageForm() {
+      const eng = adminState.activeStorageEngine;
+      const c = adminState.storageConfigs[eng];
+      const titleMap = { oss: '阿里云 OSS 凭据配置', tos: '火山引擎 TOS 凭据配置', cos: '腾讯云 COS 凭据配置' };
+      document.getElementById('storageFormFields').innerHTML = `
+        <h2 style="margin:0 0 6px;font-size:16px;font-weight:700;">${titleMap[eng]}</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">Endpoint</span><input id="stEndpoint" class="input" value="${escapeHtml(c.endpoint)}" /></div>
+          <div class="field"><span class="field-label">Region 地域</span><input id="stRegion" class="input" value="${escapeHtml(c.region)}" /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">Bucket 名称</span><input id="stBucket" class="input" value="${escapeHtml(c.bucket)}" /></div>
+          <div class="field"><span class="field-label">签名有效期 (秒)</span><input id="stTtl" class="input tabular" type="number" value="${c.ttl}" /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="field"><span class="field-label">${eng === 'cos' ? 'SecretId' : 'AccessKey ID'}</span><input class="input" type="password" placeholder="********（AES-GCM 加密）" /></div>
+          <div class="field"><span class="field-label">${eng === 'cos' ? 'SecretKey' : 'AccessKey Secret'}</span><input class="input" type="password" placeholder="********（AES-GCM 加密）" /></div>
+        </div>
+        <div class="field"><span class="field-label">自定义 CDN 加速域名（可选）</span><input id="stCdn" class="input" value="${escapeHtml(c.cdn)}" placeholder="https://cdn.example.com" /></div>
+      `;
+    }
+    function saveStorageSettings() {
+      const eng = adminState.activeStorageEngine;
+      adminState.storageConfigs[eng].endpoint = document.getElementById('stEndpoint')?.value || adminState.storageConfigs[eng].endpoint;
+      adminState.storageConfigs[eng].bucket = document.getElementById('stBucket')?.value || adminState.storageConfigs[eng].bucket;
+      showToast(`已切换并保存主存储引擎：${eng.toUpperCase()}`, 'success');
+    }
+
+    function renderAdminJobs() {
+      const filter = document.getElementById('adminJobStatusFilter').value || 'all';
+      const list = adminState.jobs.filter(j => filter === 'all' || j.status === filter);
+      const stMap = {
+        running: ['运行中', 'badge-accent'],
+        waiting_for_user: ['待用户确认', 'badge-warning'],
+        succeeded: ['已完成', 'badge-success'],
+        failed: ['失败(已退分)', 'badge-danger'],
+        cancelled: ['强制取消退分', 'badge']
+      };
+      document.getElementById('adminJobsTableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>任务 ID</th><th>所属用户</th><th>任务名称</th><th>调用来源</th><th>预冻结 / 实扣</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            ${list.map(j => {
+              const sm = stMap[j.status] || [j.status, 'badge'];
+              const canRefund = j.status === 'running' || j.status === 'waiting_for_user';
+              return `
+                <tr>
+                  <td class="tabular"><code>${escapeHtml(j.id)}</code></td>
+                  <td class="tabular">${escapeHtml(j.userPhone)}</td>
+                  <td><strong>${escapeHtml(j.title)}</strong><div class="help-text">${escapeHtml(j.time)}</div></td>
+                  <td>${escapeHtml(j.source)}</td>
+                  <td class="tabular">冻 ${j.frozen} / 扣 ${j.settled}</td>
+                  <td><span class="badge ${sm[1]}">${sm[0]}</span></td>
+                  <td>
+                    <div style="display:flex;gap:6px;">
+                      <button type="button" class="btn btn-outline btn-sm" onclick="openJobInspectModal('${j.id}')">载荷与流水</button>
+                      ${canRefund ? `<button type="button" class="btn btn-danger-outline btn-sm" onclick="forceRefundJob('${j.id}')">强制取消并退分</button>` : ''}
+                    </div>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+    function openJobInspectModal(id) {
+      const j = adminState.jobs.find(x => x.id === id);
+      if (!j) return;
+      openAdminModal(`任务详情与账本快照 · ${j.id}`, `
+        <div class="help-text">发起账号：<strong>${escapeHtml(j.userPhone)}</strong> · 模型来源：${escapeHtml(j.source)}</div>
+        <pre style="margin:0;padding:12px;background:#18181B;color:#F4F4F5;border-radius:10px;font-size:12px;overflow-x:auto;">${escapeHtml(JSON.stringify({ job_id: j.id, status: j.status, frozen_credits: j.frozen, settled_credits: j.settled, idempotency_key: 'idem_' + j.id }, null, 2))}</pre>
+      `, `<button type="button" class="btn btn-outline" onclick="closeAdminModal()">关闭</button>`);
+    }
+    function forceRefundJob(id) {
+      const j = adminState.jobs.find(x => x.id === id);
+      if (!j) return;
+      const refundAmt = j.frozen;
+      j.status = 'cancelled';
+      j.frozen = 0;
+      const u = adminState.users.find(x => x.phone === j.userPhone);
+      if (u && refundAmt > 0) u.credits += refundAmt;
+      renderAdminJobs();
+      showToast(`已强制取消任务 ${id}，并向用户全额退还冻结的 ${refundAmt} 积分`, 'success');
+    }
+
+    function openAdminModal(title, bodyHtml, footHtml, wide = false) {
+      document.getElementById('adminModalTitle').textContent = title;
+      document.getElementById('adminModalBody').innerHTML = bodyHtml;
+      document.getElementById('adminModalFoot').innerHTML = footHtml || '';
+      document.getElementById('adminModalBox').classList.toggle('wide', wide);
+      document.getElementById('adminModal').classList.add('open');
+    }
+    function closeAdminModal() { document.getElementById('adminModal').classList.remove('open'); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdminModal(); });
+
+    renderOverview();
+  </script>
+</body>
+</html>

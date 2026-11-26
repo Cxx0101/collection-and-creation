@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星芒创作 SparkStudio · 前后端分离原型导航</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --card: #FFFFFF;
+      --ink: #09090B;
+      --muted: #52525B;
+      --border: #E4E4E7;
+      --primary: #18181B;
+      --accent: #DB2777;
+      --accent-soft: #FDF2F8;
+      --accent-border: #FBCFE8;
+      --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.05);
+      --shadow-lg: 0 12px 28px rgba(9, 9, 11, 0.08);
+      --font: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+    .page-shell {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 40px 32px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .hero {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 36px 32px;
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 28px;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .spec-box {
+      background: #FAFAFA;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .spec-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .spec-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .portal-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: #D4D4D8;
+    }
+    .portal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .portal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .portal-icon.web { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); }
+    .portal-icon.admin { background: #F4F4F5; color: var(--primary); border: 1px solid var(--border); }
+    .portal-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #FAFAFA;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .portal-card h2 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .portal-desc {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .feature-list {
+      margin: 0 0 24px;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #27272A;
+    }
+    .feature-list svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--accent);
+    }
+    .portal-card.admin-card .feature-list svg { color: var(--primary); }
+    .portal-footer {
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .route-hint {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 160ms ease, background-color 160ms ease;
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+    .btn-accent:hover { opacity: 0.92; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+    .btn-primary:hover { background: #27272A; }
+    .doc-strip {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .doc-strip-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .doc-strip-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .doc-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .doc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #FAFAFA;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #27272A;
+    }
+    .doc-chip:hover { border-color: var(--primary); background: #FFFFFF; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 24px; }
+      .portal-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .page-shell { padding: 24px 16px 40px; }
+      .spec-grid { grid-template-columns: 1fr; }
+      .portal-footer { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
+        </span>
+        <span>星芒创作 SparkStudio</span>
+      </div>
+      <div class="meta-pill">
+        <span class="meta-dot" aria-hidden="true"></span>
+        <span>非 SaaS 前后端分离架构 · Go + React + MySQL 5.7/8.0 · 原型 v2.0</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-label="原型架构概览">
+      <div>
+        <div class="hero-eyebrow">前后端完全分离 · 面向 C 端内容创作者</div>
+        <h1>C 端创作平台与统一管理后台</h1>
+        <p>
+          基于 <strong>ui-ux-pro-max</strong> 设计系统重构，完全脱离原桌面端内部表单风格。前台仅面向普通用户提供极简创作、复刻、采集与支付宝/微信直充收银台；后台独立统一配置存储（OSS/TOS/COS）、TikHub、多供应商大模型与积分套餐定价。
+        </p>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-box">
+          <span class="spec-label">支付与积分模式</span>
+          <span class="spec-value">支付宝 / 微信直充</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-label">存储三引擎</span>
+          <span class="spec-value">阿里云 OSS · 火山 TOS · 腾讯 COS</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-label">大模型架构</span>
+          <span class="spec-value">平台扣分 + 用户自有双轨</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-label">数据与隐私</span>
+          <span class="spec-value">手机号注册 · 采集仅本人可见</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="portal-grid" aria-label="原型入口选择">
+      <article class="portal-card">
+        <div class="portal-head">
+          <div class="portal-icon web" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
+          </div>
+          <span class="portal-badge">纯 C 端视角 · 无后台入口</span>
+        </div>
+        <h2>C 端创作平台前台</h2>
+        <p class="portal-desc">面向普通内容创作者的日光画廊与创作工作台，所有长耗时任务均支持异步状态追踪，数据按账号严格隔离。</p>
+        <ul class="feature-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>极简首屏与 3 步复刻：</strong>灵感广场一键起盘、爆款视频/图文 3 步复刻（全云端 10 类模型自由选，无字幕烧录）</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>13 项可见创作工具：</strong>三栏 Split Studio，含涂抹画笔交互、公众号 375px 预览、个人 <code>@技能</code> 与 ZIP 打包</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>完整 CRUD：</strong>采集批次/关键词、个人资产、商品多图、20 节点自动化流水线、自有大模型与公众号绑定</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>独立支付收银台：</strong>套餐选择 + 支付宝/微信扫码支付倒计时页面 + 实时到账与共享积分账本</span>
+          </li>
+        </ul>
+        <div class="portal-footer">
+          <span class="route-hint">prototype/web/index.html</span>
+          <a class="btn btn-accent" href="./web/index.html">
+            <span>进入 C 端前台原型</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <article class="portal-card admin-card">
+        <div class="portal-head">
+          <div class="portal-icon admin" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <span class="portal-badge">管理员独立域 · /admin/*</span>
+        </div>
+        <h2>统一管理后台</h2>
+        <p class="portal-desc">单一后台集中治理全站注册策略、积分套餐、支付网关、多供应商大模型接入、TikHub 与云端对象存储。</p>
+        <ul class="feature-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>套餐与支付完整配置：</strong>积分套餐自定义增删改查上下架、支付宝/微信商户配置与异步回调补单核销</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>多供应商自定义接入：</strong>支持 10 类协议多实例 CRUD、保存并拉取模型、能力打标与按次/按张/按秒定价 CRUD</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>用户与注册开关：</strong>短信验证码开关、新用户赠分、关闭短信后后台重置密码并递增 <code>token_version</code> 踢下线</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>采集与三引擎存储：</strong>TikHub 每页扣费与热度权重配置、OSS/TOS/COS 切换与 CORS 校验、全站任务监控退费</span>
+          </li>
+        </ul>
+        <div class="portal-footer">
+          <span class="route-hint">prototype/admin/index.html</span>
+          <a class="btn btn-primary" href="./admin/index.html">
+            <span>进入管理后台原型</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </article>
+    </section>
+
+    <section class="doc-strip" aria-label="配套架构文档">
+      <div>
+        <div class="doc-strip-title">配套系统分析与架构设计文档（纯文档待开发基线）</div>
+        <div class="doc-strip-sub">原型中所有业务边界、表结构字段、Go 技术选型与宝塔部署方案均已在以下文档锁定。</div>
+      </div>
+      <div class="doc-links">
+        <a class="doc-chip" href="../docs/01-系统全貌与功能清单.md">01 功能清单</a>
+        <a class="doc-chip" href="../docs/03-网页化重构与前后端分离改造方案.md">03 改造方案</a>
+        <a class="doc-chip" href="../docs/04-目标系统架构与统一后台设计.md">04 架构与后台</a>
+        <a class="doc-chip" href="../docs/05-Go后端技术选型与宝塔部署方案.md">05 Go 与宝塔</a>
+        <a class="doc-chip" href="../docs/06-C端平台型原型与界面设计规范.md">06 设计规范</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
