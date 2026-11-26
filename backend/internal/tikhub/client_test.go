@@ -329,6 +329,9 @@ func TestTikTokImageSearchUsesPhotoEndpoint(t *testing.T) {
 	if query.Get("keyword") != "冲锋衣" {
 		t.Fatalf("query = %#v", query)
 	}
+	if query.Get("sort_type") != "" || query.Get("publish_time") != "" || query.Get("region") != "" {
+		t.Fatalf("photo search should not carry video filters, query = %#v", query)
+	}
 	if len(result.Items) != 1 || result.Items[0].ContentType != "image" ||
 		result.Items[0].CoverURL != "https://cdn.example.com/photo.jpg" {
 		t.Fatalf("result = %#v", result)

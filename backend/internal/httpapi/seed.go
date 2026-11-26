@@ -192,7 +192,7 @@ func (s *Server) Seed() error {
 		modelsByProvider := map[string][]models.ProviderModel{
 			"ark": {
 				{ModelID: "doubao-seedream-3-0-t2i", DisplayName: "Seedream 3.0", Capability: "image", Unit: "张", Credits: 12, Enabled: true},
-				{ModelID: "doubao-seedance-2-5", DisplayName: "Seedance 2.5", Capability: "video", Unit: "秒", Credits: 6, Enabled: true, SupportsVideoRef: true, MaxRefImages: 4},
+				{ModelID: "doubao-seedance-2-5", DisplayName: "Seedance 2.5", Capability: "video", Unit: "秒", Credits: 22, Credits480P: 10, Credits720P: 22, Credits1080P: 54, Enabled: true, SupportsVideoRef: true, MaxRefImages: 4},
 				{ModelID: "doubao-1-5-vision-pro", DisplayName: "Doubao 1.5 Vision Pro", Capability: "understanding", Unit: "次", Credits: 2, Enabled: true},
 			},
 			"openai": {
@@ -249,6 +249,7 @@ func (s *Server) Seed() error {
 	if err := s.seedBuiltinStudioSkills(); err != nil {
 		return err
 	}
+	s.backfillVideoResolutionPricing()
 	s.SeedDemoCollectionMetrics()
 	return s.seedDevelopmentShowcase()
 }
@@ -311,6 +312,44 @@ func (s *Server) upgradeLegacyDemoPackages() error {
 	})
 }
 
+func (s *Server) backfillVideoResolutionPricing() {
+	type rule struct {
+		prefix string
+		p480   int64
+		p720   int64
+		p1080  int64
+	}
+	rules := []rule{
+		{prefix: "doubao-seedance-2-0-fast", p480: 6, p720: 12},
+		{prefix: "doubao-seedance-2-5-flash", p480: 7, p720: 15},
+		{prefix: "doubao-seedance-2-5", p480: 10, p720: 22, p1080: 54},
+	}
+	var list []models.ProviderModel
+	if err := s.DB.Where("capability = ? AND unit = ?", "video", "秒").Find(&list).Error; err != nil {
+		return
+	}
+	for _, row := range list {
+		if row.Credits480P != 0 || row.Credits720P != 0 || row.Credits1080P != 0 {
+			continue
+		}
+		modelID := strings.ToLower(row.ModelID)
+		for _, item := range rules {
+			if !strings.Contains(modelID, item.prefix) {
+				continue
+			}
+			updates := map[string]interface{}{"credits": item.p720, "credits_720p": item.p720}
+			if item.p480 > 0 {
+				updates["credits_480p"] = item.p480
+			}
+			if item.p1080 > 0 {
+				updates["credits_1080p"] = item.p1080
+			}
+			s.DB.Model(&models.ProviderModel{}).Where("id = ?", row.ID).Updates(updates)
+			break
+		}
+	}
+}
+
 func (s *Server) upgradeLegacyDemoProviders() error {
 	var existing []models.ProviderConfig
 	if err := s.DB.Order("sort_order asc, id asc").Find(&existing).Error; err != nil || len(existing) != 4 {
@@ -333,7 +372,7 @@ func (s *Server) upgradeLegacyDemoProviders() error {
 	seeds := []providerSeed{
 		{Provider: models.ProviderConfig{Provider: "ark", DisplayName: "火山方舟主节点", BaseURL: "https://ark.cn-beijing.volces.com/api/v3", Enabled: true, SortOrder: 1}, Models: []models.ProviderModel{
 			{ModelID: "doubao-seedream-3-0-t2i", DisplayName: "Seedream 3.0", Capability: "image", Unit: "张", Credits: 12, Enabled: true},
-			{ModelID: "doubao-seedance-2-5", DisplayName: "Seedance 2.5", Capability: "video", Unit: "秒", Credits: 6, Enabled: true, SupportsVideoRef: true, MaxRefImages: 4},
+			{ModelID: "doubao-seedance-2-5", DisplayName: "Seedance 2.5", Capability: "video", Unit: "秒", Credits: 22, Credits480P: 10, Credits720P: 22, Credits1080P: 54, Enabled: true, SupportsVideoRef: true, MaxRefImages: 4},
 			{ModelID: "doubao-1-5-vision-pro", DisplayName: "Doubao 1.5 Vision Pro", Capability: "understanding", Unit: "次", Credits: 2, Enabled: true},
 		}},
 		{Provider: models.ProviderConfig{Provider: "openai", DisplayName: "OpenAI 官方企业通道", BaseURL: "https://api.openai.com/v1", Enabled: true, SortOrder: 2}, Models: []models.ProviderModel{

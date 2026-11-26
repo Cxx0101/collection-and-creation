@@ -159,6 +159,20 @@ function studioReferenceRole(toolId: string, index: number, videoMode: 'omni_ref
 
 function videoCapability(provider: string, modelId: string): VideoCapability {
   const normalizedModelId = modelId.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  if (normalizedModelId.includes('seedance-2-5-flash')) {
+    return {
+      firstLabel: '全能参考',
+      supportsFirstLast: true,
+      maxRefs: 30,
+      maxVideos: 10,
+      maxVideoSec: 30,
+      durations: [4, 5, 6, 8, 10, 12, 15],
+      resolutions: ['480p', '720p'],
+      ratios: ['21:9', '16:9', '4:3', '1:1', '3:4', '9:16', 'adaptive'],
+      audioChoices: [true, false],
+      note: 'Seedance 2.5 Flash 支持 480p / 720p；需要 1080p 时会自动切换至 Seedance 2.5 标准模型。',
+    }
+  }
   if (normalizedModelId.includes('seedance-2-5')) {
     return {
       firstLabel: '全能参考',

@@ -244,8 +244,8 @@ export default function CreditsPage() {
               </div>
               <div className="card" style={{ padding: '14px 16px' }}>
                 <div className="help-text">平台 AI 生视频</div>
-                <strong className="tabular" style={{ fontSize: 16 }}>5–8 积分 / 秒</strong>
-                <div className="help-text">支持 1080p 规格系数</div>
+                <strong className="tabular" style={{ fontSize: 16 }}>6–54 积分 / 秒</strong>
+                <div className="help-text">480p / 720p / 1080p 分档计价</div>
               </div>
               <div className="card" style={{ padding: '14px 16px' }}>
                 <div className="help-text">自有接口直连</div>

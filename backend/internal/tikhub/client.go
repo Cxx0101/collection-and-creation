@@ -602,12 +602,14 @@ func (c *Client) searchPage(
 		query.Set("keyword", keyword)
 		query.Set("count", "20")
 		query.Set("offset", strconv.Itoa(offset))
-		query.Set("sort_type", "0")
-		query.Set("publish_time", strconv.Itoa(tikTokPublishTime(days)))
+		if contentType != "image" {
+			query.Set("sort_type", "0")
+			query.Set("publish_time", strconv.Itoa(tikTokPublishTime(days)))
+		}
 		if searchID != "" {
 			query.Set("search_id", searchID)
 		}
-		if contentType != "image" && contentType != "all" {
+		if contentType == "video" {
 			query.Set("region", "US")
 		}
 		requestURL += "?" + query.Encode()
